@@ -1,5 +1,7 @@
 # REMoDNaV - Robust Eye Movement Detection for Natural Viewing
 
+[![Travis tests status](https://secure.travis-ci.org/psychoinformatics-de/remodnav.png?branch=master)](https://travis-ci.org/psychoinformatics-de/remodnav) [![codecov.io](https://codecov.io/github/psychoinformatics-de/remodnav/coverage.svg?branch=master)](https://codecov.io/github/psychoinformatics-de/remodnav?branch=master) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![GitHub release](https://img.shields.io/github/release/psychoinformatics-de/remodnav.svg)](https://GitHub.com/psychoinformatics-de/remodnav/releases/) [![PyPI version fury.io](https://badge.fury.io/py/remodnav.svg)](https://pypi.python.org/pypi/remodnav/) [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/psychoinformatics-de/remodnav.svg)](http://isitmaintained.com/project/psychoinformatics-de/remodnav "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/psychoinformatics-de/remodnav.svg)](http://isitmaintained.com/project/psychoinformatics-de/remodnav "Percentage of issues still open")
+
 ## Support
 
 All bugs, concerns and enhancement requests for this software can be submitted here:
