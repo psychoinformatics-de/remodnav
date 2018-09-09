@@ -6,7 +6,7 @@ git:
   submodules: false
 
 python:
-  - 2.7
+  #  - 2.7
   - 3.6
 
 cache:
@@ -35,7 +35,7 @@ script:
   # Verify that setup.py build doesn't puke
   - python setup.py build
   # Test installation system-wide
-  - sudo pip install -e .
+  - pip install -e .
   # Run tests
   - PATH=$PWD/tools/coverage-bin:$PATH
     python -m pytest -s -v --cov=code --cov-report=term-missing .
