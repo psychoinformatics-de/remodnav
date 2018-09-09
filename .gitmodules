@@ -1,0 +1,3 @@
+[submodule "remodnav/tests/data/studyforrest"]
+	path = remodnav/tests/data/studyforrest
+	url = https://github.com/psychoinformatics-de/studyforrest-data-phase2.git
