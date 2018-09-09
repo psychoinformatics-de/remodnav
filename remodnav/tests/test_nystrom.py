@@ -14,7 +14,7 @@ common_args = dict(
 )
 
 
-def test_target_data():
+def _test_target_data():
     label_remap = {
         1: 'FIXA',
         2: 'SACC',
@@ -60,7 +60,7 @@ def test_target_data():
     pl.plot(isaccades['amp'], isaccades['peak_vel'], '.', alpha=.3)
     pl.show()
 
-def test_real_data():
+def _test_real_data():
     data = np.recfromcsv(
         'inputs/event_detector_1.1/1_2.csv',
         usecols=[0, 1])
