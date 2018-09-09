@@ -46,6 +46,7 @@ setup(
     install_requires=[
         'numpy',
         'scipy',
+        'statsmodels',
     ],
     extras_require={
         'devel-docs': [
