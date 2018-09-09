@@ -38,7 +38,7 @@ script:
   - pip install -e .
   # Run tests
   - PATH=$PWD/tools/coverage-bin:$PATH
-    python -m pytest -s -v --cov=code --cov-report=term-missing .
+    python -m pytest -s -v --cov=remodnav --cov-report=term-missing .
 
 after_success:
   - coverage combine -a /tmp/.coverage-entrypoints-*
