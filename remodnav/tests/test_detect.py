@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from . import utils as ut
 from .. import detect_events as d
+import datalad.api as dl
 
 
 common_args = dict(
@@ -82,11 +83,12 @@ def test_too_long_pso():
 
 
 @pytest.mark.parametrize('infile', [
-    'inputs/raw_eyegaze/sub-32/beh/sub-32_task-movie_run-2_recording-eyegaze_physio.tsv.gz',
-    'inputs/raw_eyegaze/sub-09/ses-movie/func/sub-09_ses-movie_task-movie_run-2_recording-eyegaze_physio.tsv.gz',
-    'inputs/raw_eyegaze/sub-02/ses-movie/func/sub-02_ses-movie_task-movie_run-5_recording-eyegaze_physio.tsv.gz',
+    'remodnav/tests/data/studyforrest/sub-32/beh/sub-32_task-movie_run-2_recording-eyegaze_physio.tsv.gz',
+    'remodnav/tests/data/studyforrest/sub-09/ses-movie/func/sub-09_ses-movie_task-movie_run-2_recording-eyegaze_physio.tsv.gz',
+    'remodnav/tests/data/studyforrest/sub-02/ses-movie/func/sub-02_ses-movie_task-movie_run-5_recording-eyegaze_physio.tsv.gz',
 ])
 def test_real_data(infile):
+    dl.get(infile)
     data = np.recfromcsv(
         infile,
         delimiter='\t',
