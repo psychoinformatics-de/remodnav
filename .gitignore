@@ -1,0 +1,15 @@
+.cache/
+.pybuild/
+.coverage
+/dist
+/build
+tmp
+.noseids
+*.egg-info
+*.py[coe]
+*.bak
+.#*
+.orig
+.rej
+.*.swp
+.travis.yml.evil-bd
