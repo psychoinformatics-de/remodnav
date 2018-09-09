@@ -23,7 +23,7 @@ install:
   # Install standalone build of git-annex for the recent enough version
   - travis_retry sudo eatmydata apt-get install pandoc
   - cd ..; pip install -q codecov; cd -
-  #- pip install -r requirements.txt
+  - pip install -r requirements-devel.txt
 
 script:
   # Verify that setup.py build doesn't puke
