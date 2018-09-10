@@ -86,6 +86,7 @@ def show_gaze(data=None, pp=None, events=None,
         'IHPS': 'xkcd:azure',
         'LPSO': 'xkcd:faded blue',
         'ILPS': 'xkcd:faded blue',
+        'PSO': 'xkcd:blue',
     }
 
     import pylab as pl
