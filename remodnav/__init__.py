@@ -1,3 +1,11 @@
+# emacs: -*- mode: python; py-indent-offset: 4; tab-width: 4; indent-tabs-mode: nil -*-
+# ex: set sts=4 ts=4 sw=4 noet:
+# ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
+#
+#   See COPYING file distributed along with the remodnavlad package for the
+#   copyright and license terms.
+#
+# ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 __version__ = '0.1.dev'
 
 import logging
@@ -6,7 +14,7 @@ lgr = logging.getLogger('remodnav')
 import sys
 import numpy as np
 
-from .detect_events import (
+from .clf import (
     EyegazeClassifier,
     events2bids_events_tsv,
 )

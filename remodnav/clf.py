@@ -1,5 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# emacs: -*- mode: python; py-indent-offset: 4; tab-width: 4; indent-tabs-mode: nil -*-
+# ex: set sts=4 ts=4 sw=4 noet:
+# ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
+#
+#   See COPYING file distributed along with the remodnavlad package for the
+#   copyright and license terms.
+#
+# ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 import numpy as np
 from statsmodels.robust.scale import mad
 from scipy import signal
@@ -12,7 +18,7 @@ from math import (
 )
 
 import logging
-lgr = logging.getLogger('studyforrest.detect_eyegaze_events')
+lgr = logging.getLogger('remodnav.clf')
 
 
 def deg_per_pixel(screen_size, viewing_distance, screen_resolution):

@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from . import utils as ut
-from .. import detect_events as d
+from .. import clf as d
 import datalad.api as dl
 
 

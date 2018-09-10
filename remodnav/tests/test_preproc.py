@@ -1,6 +1,6 @@
 import numpy as np
 from . import utils as ut
-from .. import detect_events as d
+from .. import clf as d
 
 
 common_args = dict(
