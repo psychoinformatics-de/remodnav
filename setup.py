@@ -54,6 +54,6 @@ setup(
             'pypandoc',
         ]},
     entry_points = {
-        'remodnav': 'name=remodnav.main',
+        'console_scripts': ['remodnav=remodnav:main'],
     },
 )
