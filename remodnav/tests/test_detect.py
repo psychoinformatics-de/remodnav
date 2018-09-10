@@ -135,7 +135,7 @@ def test_cmdline(infile, tmpdir):
     dl.get(infile)
     outfname = tmpdir.mkdir('bids').join("events.tsv").strpath
 
-    remodnav.main([infile, outfname, '0.0266711972026', '1000'])
+    remodnav.main(['fake', infile, outfname, '0.0266711972026', '1000'])
 
     assert op.exists(outfname)
     assert op.exists(outfname[:-4] + '.png')
