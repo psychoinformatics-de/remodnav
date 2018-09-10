@@ -72,7 +72,7 @@ def main(args=sys.argv):
             default=default,
             help='default: {}'.format(default))
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     logging.basicConfig(
         format='%(levelname)s:%(message)s',

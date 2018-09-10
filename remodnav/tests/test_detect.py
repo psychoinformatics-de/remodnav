@@ -1,3 +1,4 @@
+import os.path as op
 import pytest
 import numpy as np
 from . import utils as ut
@@ -124,3 +125,17 @@ def test_real_data(infile):
     pl.plot(saccades['amp'], saccades['peak_vel'], '.', alpha=.3)
     pl.plot(isaccades['amp'], isaccades['peak_vel'], '.', alpha=.3)
     pl.show()
+
+
+@pytest.mark.parametrize('infile', [
+    'remodnav/tests/data/studyforrest/sub-32/beh/sub-32_task-movie_run-2_recording-eyegaze_physio.tsv.gz',
+])
+def test_cmdline(infile, tmpdir):
+    import remodnav
+    dl.get(infile)
+    outfname = tmpdir.mkdir('bids').join("events.tsv").strpath
+
+    remodnav.main([infile, outfname, '0.0266711972026', '1000'])
+
+    assert op.exists(outfname)
+    assert op.exists(outfname[:-4] + '.png')

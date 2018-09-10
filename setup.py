@@ -47,6 +47,7 @@ setup(
         'numpy',
         'scipy',
         'statsmodels',
+        'matplotlib',
     ],
     extras_require={
         'devel-docs': [
