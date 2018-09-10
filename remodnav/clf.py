@@ -642,7 +642,10 @@ class EyegazeClassifier(object):
                     yield e
                 return
 
-        max_amp, label = self._fix_or_pursuit(data, start, end)
+        label = None
+        if end - start > self.min_fix_dur:
+            # we have at least enough data for a really short fixation
+            max_amp, label = self._fix_or_pursuit(data, start, end)
         if label is not None:
             yield self._mk_event_record(
                 data,
