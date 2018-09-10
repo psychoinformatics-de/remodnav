@@ -230,11 +230,13 @@ class EyegazeClassifier(object):
                  saccade_context_window_length=1.0,
                  max_pso_duration=0.04,
                  min_fixation_duration=0.04,
-                 max_fixation_amp=0.7):
+                 max_fixation_amp=0.7,
+                 lowpass_cutoff_freq=10.0):
             self.px2deg = px2deg
             self.sr = sr = sampling_rate
             self.velthresh_startvel = velthresh_startvelocity
             self.max_fix_amp = max_fixation_amp
+            self.lp_cutoff_freq = lowpass_cutoff_freq
 
             # convert to #samples
             self.min_intersac_dur = int(
@@ -652,7 +654,8 @@ class EyegazeClassifier(object):
         # we have at least enough data for a really short fixation
         win_data = data[start:end].copy()
 
-        # 
+        # heavy smoothing of the time series, whatever this non-saccade
+        # interval is, the key info should be in its low-freq components
         def _butter_lowpass(cutoff, fs, order=5):
             nyq = 0.5 * fs
             normal_cutoff = cutoff / nyq
@@ -663,7 +666,7 @@ class EyegazeClassifier(object):
                 analog=False)
             return b, a
 
-        b, a = _butter_lowpass(10.0, self.sr)
+        b, a = _butter_lowpass(self.lp_cutoff_freq, self.sr)
         win_data['x'] = signal.filtfilt(b, a, win_data['x'], method='gust')
         win_data['y'] = signal.filtfilt(b, a, win_data['y'], method='gust')
 
