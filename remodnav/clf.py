@@ -652,6 +652,7 @@ class EyegazeClassifier(object):
         # we have at least enough data for a really short fixation
         win_data = data[start:end].copy()
 
+        # 
         def _butter_lowpass(cutoff, fs, order=5):
             nyq = 0.5 * fs
             normal_cutoff = cutoff / nyq
@@ -662,7 +663,7 @@ class EyegazeClassifier(object):
                 analog=False)
             return b, a
 
-        b, a = _butter_lowpass(10.0, 1000.0)
+        b, a = _butter_lowpass(10.0, self.sr)
         win_data['x'] = signal.filtfilt(b, a, win_data['x'], method='gust')
         win_data['y'] = signal.filtfilt(b, a, win_data['y'], method='gust')
 
