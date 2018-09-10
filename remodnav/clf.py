@@ -642,23 +642,15 @@ class EyegazeClassifier(object):
                     yield e
                 return
 
-        label = None
-        if end - start > self.min_fix_dur:
-            # we have at least enough data for a really short fixation
-            max_amp, label = self._fix_or_pursuit(data, start, end)
-        if label is not None:
-            yield self._mk_event_record(
-                data,
-                max_amp,
-                label,
-                start,
-                end)
+        # what is this time between two saccades?
+        for e in self._fix_or_pursuit(data, start, end):
+            yield e
 
     def _fix_or_pursuit(self, data, start, end):
+        if end - start < self.min_fix_dur:
+            return
+        # we have at least enough data for a really short fixation
         win_data = data[start:end].copy()
-
-        if len(win_data) < self.min_fix_dur:
-            return None, None
 
         def _butter_lowpass(cutoff, fs, order=5):
             nyq = 0.5 * fs
@@ -685,9 +677,13 @@ class EyegazeClassifier(object):
         max_amp = amp[amp_argmax] * self.px2deg
         #print('MAX IN WIN [{}:{}]@{:.1f})'.format(start, end, max_amp))
 
-        if max_amp > self.max_fix_amp:
-            return max_amp, 'PURS'
-        return max_amp, 'FIXA'
+        label = 'PURS' if max_amp > self.max_fix_amp else 'FIXA'
+        yield self._mk_event_record(
+            data,
+            max_amp,
+            label,
+            start,
+            end)
 
     def preproc(
             self,
