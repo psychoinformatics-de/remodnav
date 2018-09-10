@@ -670,7 +670,8 @@ class EyegazeClassifier(object):
         win_data['x'] = signal.filtfilt(b, a, win_data['x'], method='gust')
         win_data['y'] = signal.filtfilt(b, a, win_data['y'], method='gust')
 
-        win_data = win_data[10:-10]
+        win_data = \
+            win_data[int(self.min_fix_dur / 2):-int(self.min_fix_dur / 2)]
         start_x = win_data[0]['x']
         start_y = win_data[0]['y']
 
