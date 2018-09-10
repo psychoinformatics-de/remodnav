@@ -1,4 +1,5 @@
 # emacs: -*- mode: python; py-indent-offset: 4; tab-width: 4; indent-tabs-mode: nil -*-
+# -*- coding: utf-8 -*-
 # ex: set sts=4 ts=4 sw=4 noet:
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 #
@@ -144,8 +145,7 @@ def filter_spikes(data):
 
       Stampe, D. M. (1993). Heuristic filtering and reliable calibration
       methods for video-based pupil-tracking systems. Behavior Research
-      Methods, Instruments, & Computers, 25(2), 137–142.
-      doi:10.3758/bf03204486
+      Methods, Instruments, & Computers, 25(2), 137-142. doi:10.3758/bf03204486
     """
     def _filter(arr):
         # over all triples of neighboring samples

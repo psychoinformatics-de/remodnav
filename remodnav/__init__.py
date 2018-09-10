@@ -31,6 +31,7 @@ def main(args=sys.argv):
         kwargs.update(zip(argspec.args[::-1], argspec.defaults[::-1]))
 
     parser = argparse.ArgumentParser(
+        prog='remodnav',
         description='{}\nPreprocessing\n=============\n{}'.format(
             EyegazeClassifier.__doc__,
             EyegazeClassifier.preproc.__doc__,
@@ -72,7 +73,7 @@ def main(args=sys.argv):
             default=default,
             help='default: {}'.format(default))
 
-    args = parser.parse_args(args)
+    args = parser.parse_args(args[1:])
 
     logging.basicConfig(
         format='%(levelname)s:%(message)s',
