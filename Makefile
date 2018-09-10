@@ -38,7 +38,7 @@ code-analysis:
 #	@echo ".. This file is auto-converted from CHANGELOG.md (make update-changelog) -- do not edit\n\nChange log\n**********" > docs/source/changelog.rst
 #	pandoc -t rst CHANGELOG.md >> docs/source/changelog.rst
 
-release-pypi: update-changelog
+release-pypi: # update-changelog
 	# better safe than sorry
 	test ! -e dist
 	python setup.py sdist
