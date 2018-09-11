@@ -83,7 +83,7 @@ def find_peaks(vels, threshold):
     return sacs
 
 
-def find_saccade_onsetidx(vels, start_idx, sac_onset_velthresh):
+def find_movement_onsetidx(vels, start_idx, sac_onset_velthresh):
     idx = start_idx
     while idx > 0 \
             and (vels[idx] > sac_onset_velthresh or
@@ -223,6 +223,8 @@ class EyegazeClassifier(object):
     def __init__(self,
                  px2deg,
                  sampling_rate,
+                 pursuit_velthresh=2.0,
+                 noise_factor=5.0,
                  velthresh_startvelocity=300.0,
                  min_intersaccade_duration=0.04,
                  min_saccade_duration=0.01,
@@ -230,11 +232,14 @@ class EyegazeClassifier(object):
                  saccade_context_window_length=1.0,
                  max_pso_duration=0.04,
                  min_fixation_duration=0.04,
-                 max_fixation_amp=0.7):
+                 min_pursuit_duration=0.04,
+                 lowpass_cutoff_freq=4.0):
             self.px2deg = px2deg
             self.sr = sr = sampling_rate
             self.velthresh_startvel = velthresh_startvelocity
-            self.max_fix_amp = max_fixation_amp
+            self.lp_cutoff_freq = lowpass_cutoff_freq
+            self.pursuit_velthresh = pursuit_velthresh
+            self.noise_factor = noise_factor
 
             # convert to #samples
             self.min_intersac_dur = int(
@@ -247,6 +252,8 @@ class EyegazeClassifier(object):
                 max_pso_duration * sr)
             self.min_fix_dur = int(
                 min_fixation_duration * sr)
+            self.min_purs_dur = int(
+                min_pursuit_duration * sr)
 
             self.max_sac_freq = max_initial_saccade_freq / sr
 
@@ -286,7 +293,7 @@ class EyegazeClassifier(object):
             vel_uthr = vels[vels < cut]
             med = np.median(vel_uthr)
             scale = mad(vel_uthr)
-            return med + 10 * scale, med, scale
+            return med + 2 * self.noise_factor * scale, med, scale
 
         # re-compute threshold until value converges
         count = 0
@@ -306,7 +313,7 @@ class EyegazeClassifier(object):
             dif = abs(old_thresh - cur_thresh)
             count += 1
 
-        return cur_thresh, (med + 5 * scale)
+        return cur_thresh, (med + self.noise_factor * scale)
 
     def _mk_event_record(self, data, idx, label, start, end):
         return dict(zip(self.record_field_names, (
@@ -428,7 +435,7 @@ class EyegazeClassifier(object):
                      sac_onset_velthresh, sac_peak_velthresh)
 
             # move backwards in time to find the saccade onset
-            sacc_start = find_saccade_onsetidx(
+            sacc_start = find_movement_onsetidx(
                 data['vel'], sacc_start, sac_onset_velthresh)
 
             # move forward in time to find the saccade offset
@@ -642,21 +649,18 @@ class EyegazeClassifier(object):
                     yield e
                 return
 
-        max_amp, label = self._fix_or_pursuit(data, start, end)
-        if label is not None:
-            yield self._mk_event_record(
-                data,
-                max_amp,
-                label,
-                start,
-                end)
+        # what is this time between two saccades?
+        for e in self._fix_or_pursuit(data, start, end):
+            yield e
 
     def _fix_or_pursuit(self, data, start, end):
+        if end - start < self.min_fix_dur:
+            return
+        # we have at least enough data for a really short fixation
         win_data = data[start:end].copy()
 
-        if len(win_data) < self.min_fix_dur:
-            return None, None
-
+        # heavy smoothing of the time series, whatever this non-saccade
+        # interval is, the key info should be in its low-freq components
         def _butter_lowpass(cutoff, fs, order=5):
             nyq = 0.5 * fs
             normal_cutoff = cutoff / nyq
@@ -667,24 +671,107 @@ class EyegazeClassifier(object):
                 analog=False)
             return b, a
 
-        b, a = _butter_lowpass(10.0, 1000.0)
+        b, a = _butter_lowpass(self.lp_cutoff_freq, self.sr)
         win_data['x'] = signal.filtfilt(b, a, win_data['x'], method='gust')
         win_data['y'] = signal.filtfilt(b, a, win_data['y'], method='gust')
+        # no entry for first datapoint!
+        win_vels = self._get_velocities(win_data)
 
-        win_data = win_data[10:-10]
-        start_x = win_data[0]['x']
-        start_y = win_data[0]['y']
+        pursuit_peaks = find_peaks(win_vels, self.pursuit_velthresh)
 
-        # determine max location deviation from start coordinate
-        amp = (((start_x - win_data['x']) ** 2 +
-                (start_y - win_data['y']) ** 2) ** 0.5)
-        amp_argmax = amp.argmax()
-        max_amp = amp[amp_argmax] * self.px2deg
-        #print('MAX IN WIN [{}:{}]@{:.1f})'.format(start, end, max_amp))
+        # detect rest is very similar in logic to _detect_saccades()
 
-        if max_amp > self.max_fix_amp:
-            return max_amp, 'PURS'
-        return max_amp, 'FIXA'
+        # status map indicating which event class any timepoint has been
+        # assigned to so far, zero is fixation
+        pursuit_tps = np.zeros((len(win_vels),), dtype=int)
+
+        # loop over all peaks sorted by the sum of their velocities
+        # i.e. longer and faster goes first
+        for i, props in enumerate(sorted(
+                pursuit_peaks, key=lambda x: x[2].sum(), reverse=True)):
+            pursuit_start, pursuit_end, peakvels = props
+            lgr.debug(
+                'Process pursuit peak velocity window [%i, %i] at ~%.1f deg/s',
+                start + pursuit_start, start + pursuit_end, peakvels.mean())
+
+            # move backwards in time to find the pursuit onset
+            pursuit_start = find_movement_onsetidx(
+                win_vels, pursuit_start, self.pursuit_velthresh)
+
+            # move forward in time to find the pursuit offset
+            pursuit_end = find_movement_offsetidx(
+                win_vels, pursuit_end, self.pursuit_velthresh)
+
+            if pursuit_end - pursuit_start < self.min_purs_dur:
+                lgr.debug('Skip pursuit candidate, too short')
+                continue
+
+            # mark as a pursuit event
+            pursuit_tps[pursuit_start:pursuit_end] = 1
+
+        evs = []
+        for i, tp in enumerate(pursuit_tps):
+            if not evs:
+                # first event info
+                evs.append([tp, i, i])
+            elif evs[-1][0] == tp:
+                # more of the same type of event, extend existing record
+                evs[-1][-1] = i
+            else:
+                evs.append([tp, i, i])
+        # take out all the evs that are too short
+        evs = [ev for ev in evs
+               if ev[2] - ev[1] >= {
+                   1: self.min_purs_dur,
+                   0: self.min_fix_dur}[ev[0]]]
+        merged_evs = []
+        for i, ev in enumerate(evs):
+            if i == len(evs) - 1:
+                merged_evs.append(ev)
+                break
+            if ev[0] == evs[i + 1][0]:
+                # same type as coming event, merge and ignore this one
+                evs[i + 1][1] = ev[1]
+                continue
+            else:
+                # make boundary in the middle
+                boundary = ev[2] + int((evs[i + 1][1] - ev[2]) / 2)
+                ev[2] = boundary
+                evs[i + 1][1] = boundary
+                merged_evs.append(ev)
+        if not merged_evs:
+            # if we found nothing, this is all a fixation
+            merged_evs.append([0, 0, len(win_data)])
+        else:
+            # compensate for tiny snips at start and end
+            merged_evs[0][1] = 0
+            merged_evs[-1][2] = len(win_data)
+
+        # submit
+        for ev in merged_evs:
+            label = 'PURS' if ev[0] else 'FIXA'
+            # +1 to compensate for the shift in the velocity
+            # vector index
+            estart = start + ev[1]
+            eend = start + ev[-1]
+            lgr.debug('Found %s [%i, %i]',
+                      label, estart, eend)
+
+            # change of events or end
+            yield self._mk_event_record(
+                data,
+                None,
+                label,
+                estart,
+                eend)
+
+    def _get_velocities(self, data):
+        # euclidean distance between successive coordinate samples
+        # no entry for first datapoint!
+        velocities = (np.diff(data['x']) ** 2 + np.diff(data['y']) ** 2) ** 0.5
+        # convert from px/sample to deg/s
+        velocities *= self.px2deg * self.sr
+        return velocities
 
     def preproc(
             self,
@@ -745,11 +832,8 @@ class EyegazeClassifier(object):
                 data[i] = savgol_filter(data[i], savgol_length, savgol_polyord)
 
         # velocity calculation, exclude velocities over `max_vel`
-        # euclidean distance between successive coordinate samples
         # no entry for first datapoint!
-        velocities = (np.diff(data['x']) ** 2 + np.diff(data['y']) ** 2) ** 0.5
-        # convert from px/sample to deg/s
-        velocities *= self.px2deg * self.sr
+        velocities = self._get_velocities(data)
 
         if median_filter_length:
             lgr.info(

@@ -90,8 +90,10 @@ def main(args=sys.argv):
         **{k: getattr(args, k) for k in (
             'px2deg', 'sampling_rate', 'velthresh_startvelocity',
             'min_intersaccade_duration', 'min_saccade_duration',
+            'min_pursuit_duration', 'pursuit_velthresh',
             'max_initial_saccade_freq', 'saccade_context_window_length',
-            'max_pso_duration', 'min_fixation_duration', 'max_fixation_amp')}
+            'max_pso_duration', 'min_fixation_duration', 'lowpass_cutoff_freq',
+            'noise_factor')}
     )
 
     pp = clf.preproc(
@@ -123,9 +125,10 @@ def main(args=sys.argv):
                 'min_intersaccade_duration', 'min_saccade_duration',
                 'max_initial_saccade_freq', 'saccade_context_window_length',
                 'max_pso_duration', 'min_fixation_duration',
-                'max_fixation_amp', 'min_blink_duration', 'dilate_nan',
+                'min_pursuit_duration', 'pursuit_velthresh',
+                'min_blink_duration', 'dilate_nan',
                 'median_filter_length', 'savgol_length', 'savgol_polyord',
-                'max_vel'))
+                'max_vel', 'lowpass_cutoff_freq', 'noise_factor'))
         ])
     ))
     pl.ylabel('coordinates (pixel)')

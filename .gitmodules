@@ -1,3 +1,6 @@
 [submodule "remodnav/tests/data/studyforrest"]
 	path = remodnav/tests/data/studyforrest
 	url = https://github.com/psychoinformatics-de/studyforrest-data-phase2.git
+[submodule "remodnav/tests/data/anderson_etal"]
+	path = remodnav/tests/data/anderson_etal
+	url = https://github.com/richardandersson/EyeMovementDetectorEvaluation.git
