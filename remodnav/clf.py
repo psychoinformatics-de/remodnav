@@ -223,6 +223,8 @@ class EyegazeClassifier(object):
     def __init__(self,
                  px2deg,
                  sampling_rate,
+                 pursuit_velthresh=2.0,
+                 noise_factor=5.0,
                  velthresh_startvelocity=300.0,
                  min_intersaccade_duration=0.04,
                  min_saccade_duration=0.01,
@@ -231,13 +233,13 @@ class EyegazeClassifier(object):
                  max_pso_duration=0.04,
                  min_fixation_duration=0.04,
                  min_pursuit_duration=0.04,
-                 pursuit_velthresh = 2.0,
                  lowpass_cutoff_freq=4.0):
             self.px2deg = px2deg
             self.sr = sr = sampling_rate
             self.velthresh_startvel = velthresh_startvelocity
             self.lp_cutoff_freq = lowpass_cutoff_freq
             self.pursuit_velthresh = pursuit_velthresh
+            self.noise_factor = noise_factor
 
             # convert to #samples
             self.min_intersac_dur = int(
@@ -291,7 +293,7 @@ class EyegazeClassifier(object):
             vel_uthr = vels[vels < cut]
             med = np.median(vel_uthr)
             scale = mad(vel_uthr)
-            return med + 10 * scale, med, scale
+            return med + 2 * self.noise_factor * scale, med, scale
 
         # re-compute threshold until value converges
         count = 0
@@ -311,7 +313,7 @@ class EyegazeClassifier(object):
             dif = abs(old_thresh - cur_thresh)
             count += 1
 
-        return cur_thresh, (med + 5 * scale)
+        return cur_thresh, (med + self.noise_factor * scale)
 
     def _mk_event_record(self, data, idx, label, start, end):
         return dict(zip(self.record_field_names, (

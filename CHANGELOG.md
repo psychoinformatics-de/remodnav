@@ -13,6 +13,14 @@ repository](http://github.com/psychoinformatics-de/remodnav) for more details.
   is evaluated against a heavily low-pass filtered gaze trajectory, to
   only reflect "smooth" eye movement components (and thereby suppress the
   impact of measurement noise).
+- New parameter `noise_factor` that influences the adaptive saccade velocity
+  threshold. The saccade onset velocity threshold is the median of all
+  sub-threshold velocities plus `noise_factor` times the MAD of these
+  velocities. The saccade peak velocity threshold is computed in the same
+  fashion, but uses `2x noise_factor`. The default value should work for
+  noisy data. Reducing this factor can boost saccade detection sensitivity
+  for clean data (e.g. Nyström et al., 2010 use the equivalent of a factor
+  of 3.0)
 
 ## 0.1 (Sep 10, 2018)
 

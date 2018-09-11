@@ -92,7 +92,8 @@ def main(args=sys.argv):
             'min_intersaccade_duration', 'min_saccade_duration',
             'min_pursuit_duration', 'pursuit_velthresh',
             'max_initial_saccade_freq', 'saccade_context_window_length',
-            'max_pso_duration', 'min_fixation_duration', 'lowpass_cutoff_freq')}
+            'max_pso_duration', 'min_fixation_duration', 'lowpass_cutoff_freq',
+            'noise_factor')}
     )
 
     pp = clf.preproc(
@@ -127,7 +128,7 @@ def main(args=sys.argv):
                 'min_pursuit_duration', 'pursuit_velthresh',
                 'min_blink_duration', 'dilate_nan',
                 'median_filter_length', 'savgol_length', 'savgol_polyord',
-                'max_vel', 'lowpass_cutoff_freq'))
+                'max_vel', 'lowpass_cutoff_freq', 'noise_factor'))
         ])
     ))
     pl.ylabel('coordinates (pixel)')
