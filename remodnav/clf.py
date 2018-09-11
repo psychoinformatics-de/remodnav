@@ -83,7 +83,7 @@ def find_peaks(vels, threshold):
     return sacs
 
 
-def find_saccade_onsetidx(vels, start_idx, sac_onset_velthresh):
+def find_movement_onsetidx(vels, start_idx, sac_onset_velthresh):
     idx = start_idx
     while idx > 0 \
             and (vels[idx] > sac_onset_velthresh or
@@ -430,7 +430,7 @@ class EyegazeClassifier(object):
                      sac_onset_velthresh, sac_peak_velthresh)
 
             # move backwards in time to find the saccade onset
-            sacc_start = find_saccade_onsetidx(
+            sacc_start = find_movement_onsetidx(
                 data['vel'], sacc_start, sac_onset_velthresh)
 
             # move forward in time to find the saccade offset
