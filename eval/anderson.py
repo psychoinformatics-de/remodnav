@@ -55,42 +55,115 @@ def get_durations(events, evcodes):
     return durations
 
 
-for stimtype in ('images', 'dots', 'videos'):
-#for stimtype in ('images', 'videos'):
-    for coder in ('MN', 'RA'):
-        print(stimtype, coder)
-        fixation_durations = []
-        saccade_durations = []
-        pso_durations = []
-        purs_durations = []
+def print_duration_stats():
+    for stimtype in ('images', 'dots', 'videos'):
+    #for stimtype in ('images', 'videos'):
+        for coder in ('MN', 'RA'):
+            print(stimtype, coder)
+            fixation_durations = []
+            saccade_durations = []
+            pso_durations = []
+            purs_durations = []
+            for fname in labeled_files[stimtype]:
+                data, target_labels, target_events, px2deg, sr = load_anderson(
+                    stimtype, fname.format(coder))
+                fixation_durations.extend(get_durations(
+                    target_events, ['FIXA']))
+                saccade_durations.extend(get_durations(
+                    target_events, ['SACC']))
+                pso_durations.extend(get_durations(
+                    target_events, ['PSO']))
+                purs_durations.extend(get_durations(
+                    target_events, ['PURS']))
+            print(
+                'FIX: %.3f (%.3f) [%i]' % (
+                    np.mean(fixation_durations),
+                    np.std(fixation_durations),
+                    len(fixation_durations)))
+            print(
+                'SAC: %.3f (%.3f) [%i]' % (
+                    np.mean(saccade_durations),
+                    np.std(saccade_durations),
+                    len(saccade_durations)))
+            print(
+                'PSO: %.3f (%.3f) [%i]' % (
+                    np.mean(pso_durations),
+                    np.std(pso_durations),
+                    len(pso_durations)))
+            print(
+                'PURS: %.3f (%.3f) [%i]' % (
+                    np.mean(purs_durations),
+                    np.std(purs_durations),
+                    len(purs_durations)))
+
+def confusion():
+    conditions = ['FIX', 'SAC', 'PSO', 'PUR']
+    label_map = {
+        'FIXA': 'FIX',
+        'FIX': 'FIX',
+        'SACC': 'SAC',
+        'ISAC': 'SAC',
+        'HPSO': 'PSO',
+        'IHPS': 'PSO',
+        'LPSO': 'PSO',
+        'ILPS': 'PSO',
+        'PURS': 'PUR',
+    }
+    anderson_remap = {
+        'FIX': 1,
+        'SAC': 2,
+        'PSO': 3,
+        'PUR': 4,
+    }
+    import pylab as pl
+    plotter = 1
+    for stimtype in ('images', 'dots', 'videos'):
+        conf = np.zeros((len(conditions), len(conditions)), dtype=float)
         for fname in labeled_files[stimtype]:
             data, target_labels, target_events, px2deg, sr = load_anderson(
-                stimtype, fname.format(coder))
-            fixation_durations.extend(get_durations(
-                target_events, ['FIXA']))
-            saccade_durations.extend(get_durations(
-                target_events, ['SACC']))
-            pso_durations.extend(get_durations(
-                target_events, ['PSO']))
-            purs_durations.extend(get_durations(
-                target_events, ['PURS']))
-        print(
-            'FIX: %.3f (%.3f) [%i]' % (
-                np.mean(fixation_durations),
-                np.std(fixation_durations),
-                len(fixation_durations)))
-        print(
-            'SAC: %.3f (%.3f) [%i]' % (
-                np.mean(saccade_durations),
-                np.std(saccade_durations),
-                len(saccade_durations)))
-        print(
-            'PSO: %.3f (%.3f) [%i]' % (
-                np.mean(pso_durations),
-                np.std(pso_durations),
-                len(pso_durations)))
-        print(
-            'PURS: %.3f (%.3f) [%i]' % (
-                np.mean(purs_durations),
-                np.std(purs_durations),
-                len(purs_durations)))
+                stimtype, fname.format('RA'))
+            target_labels = target_labels.astype(int)
+
+            clf = EyegazeClassifier(
+                px2deg=px2deg,
+                sampling_rate=sr,
+                pursuit_velthresh=5.,
+                noise_factor=3.0,
+                lowpass_cutoff_freq=10.0,
+                min_fixation_duration=0.055,
+            )
+            p = clf.preproc(data)
+            events = clf(p)
+
+            # convert event list into anderson-style label array
+            labels = np.zeros(target_labels.shape, target_labels.dtype)
+            for ev in events:
+                labels[int(ev['start_time'] * sr):int(ev['end_time'] * sr)] = \
+                    anderson_remap[label_map[ev['label']]]
+
+            #import pdb; pdb.set_trace()
+            for c1, c1label in enumerate(conditions):
+                for c2, c2label in enumerate(conditions):
+                    #if c1 == c2:
+                    #    continue
+                    conf[c1, c2] += np.sum(np.logical_and(
+                        labels == anderson_remap[c1label],
+                        target_labels == anderson_remap[c2label]))
+
+        nsamples = np.sum(conf)
+        # zero out diagonal for bandwidth
+        conf *= ((np.eye(len(conditions)) - 1) * -1)
+        pl.subplot(1, 3, plotter)
+        pl.imshow((conf / nsamples) * 100)
+        pl.xlabel('Human label')
+        pl.ylabel('Detected')
+        pl.xticks(range(len(conditions)), conditions)
+        pl.yticks(range(len(conditions)), conditions)
+        pl.colorbar()
+        pl.title('"{}" (glob. misclf-rate): {:.1f}%)'.format(
+            stimtype, (np.sum(conf) / nsamples) * 100))
+        plotter += 1
+    pl.show()
+
+confusion()
+#print_duration_stats()
