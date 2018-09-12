@@ -36,7 +36,6 @@ def load_data(category, name):
     events = []
     ev_type = None
     ev_start = None
-    vels = []
     for i in range(len(labels)):
         s = labels[i]
         if ev_type is None and s in label_remap.keys():
@@ -60,7 +59,7 @@ def load_data(category, name):
             float(ev_start) / sr,
             end_time=float(i) / sr,
         ))
-    return data, events, px2deg, sr
+    return data, labels, events, px2deg, sr
 
 
 @pytest.mark.parametrize(
@@ -131,7 +130,7 @@ def load_data(category, name):
         ('videos', 'UL47_video_BiljardKlipp_labelled_RA.mat'),
     ])
 def test_labeled(name):
-    data, target_events, px2deg, sr = load_data(name[0], name[1])
+    data, target_labels, target_events, px2deg, sr = load_data(name[0], name[1])
 
     clf = CLF.EyegazeClassifier(
         px2deg=px2deg,
