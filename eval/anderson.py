@@ -98,6 +98,7 @@ def print_duration_stats():
 
 def confusion():
     conditions = ['FIX', 'SAC', 'PSO', 'PUR']
+    #conditions = ['FIX', 'SAC', 'PSO']
     label_map = {
         'FIXA': 'FIX',
         'FIX': 'FIX',
@@ -116,9 +117,12 @@ def confusion():
         'PUR': 4,
     }
     import pylab as pl
+    import seaborn as sns
     plotter = 1
     for stimtype in ('images', 'dots', 'videos'):
         conf = np.zeros((len(conditions), len(conditions)), dtype=float)
+        jinter = np.zeros((len(conditions), len(conditions)), dtype=float)
+        junion = np.zeros((len(conditions), len(conditions)), dtype=float)
         for fname in labeled_files[stimtype]:
             data, target_labels, target_events, px2deg, sr = load_anderson(
                 stimtype, fname.format('RA'))
@@ -138,12 +142,20 @@ def confusion():
             # convert event list into anderson-style label array
             labels = np.zeros(target_labels.shape, target_labels.dtype)
             for ev in events:
-                labels[int(ev['start_time'] * sr):int(ev['end_time'] * sr)] = \
+                labels[int(ev['start_time'] * sr):int((ev['end_time'])* sr)] = \
                     anderson_remap[label_map[ev['label']]]
 
             #import pdb; pdb.set_trace()
             for c1, c1label in enumerate(conditions):
                 for c2, c2label in enumerate(conditions):
+                    intersec = np.sum(np.logical_and(
+                        labels == anderson_remap[c1label],
+                        target_labels == anderson_remap[c2label]))
+                    union = np.sum(np.logical_or(
+                        labels == anderson_remap[c1label],
+                        target_labels == anderson_remap[c2label]))
+                    jinter[c1, c2] += intersec
+                    junion[c1, c2] += union
                     #if c1 == c2:
                     #    continue
                     conf[c1, c2] += np.sum(np.logical_and(
@@ -154,12 +166,19 @@ def confusion():
         # zero out diagonal for bandwidth
         conf *= ((np.eye(len(conditions)) - 1) * -1)
         pl.subplot(1, 3, plotter)
-        pl.imshow((conf / nsamples) * 100)
+        sns.heatmap(
+            #(conf / nsamples) * 100,
+            jinter / junion,
+            square=True,
+            annot=True,
+            xticklabels=conditions,
+            yticklabels=conditions,
+            vmin=0.0,
+            vmax=0.6,
+            #mask=np.eye(len(conditions)),
+        )
         pl.xlabel('Human label')
         pl.ylabel('Detected')
-        pl.xticks(range(len(conditions)), conditions)
-        pl.yticks(range(len(conditions)), conditions)
-        pl.colorbar()
         pl.title('"{}" (glob. misclf-rate): {:.1f}%)'.format(
             stimtype, (np.sum(conf) / nsamples) * 100))
         plotter += 1
