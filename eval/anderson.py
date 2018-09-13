@@ -1,4 +1,6 @@
 import numpy as np
+import pylab as pl
+import seaborn as sns
 from remodnav import EyegazeClassifier
 from remodnav.tests.test_labeled import load_data as load_anderson
 
@@ -96,7 +98,7 @@ def print_duration_stats():
                     np.std(purs_durations),
                     len(purs_durations)))
 
-def confusion():
+def confusion(coder):
     conditions = ['FIX', 'SAC', 'PSO', 'PUR']
     #conditions = ['FIX', 'SAC', 'PSO']
     label_map = {
@@ -116,16 +118,15 @@ def confusion():
         'PSO': 3,
         'PUR': 4,
     }
-    import pylab as pl
-    import seaborn as sns
     plotter = 1
+    pl.suptitle('Jaccard index for movement class labeling algorithm vs. human coder {}'.format(coder))
     for stimtype in ('images', 'dots', 'videos'):
         conf = np.zeros((len(conditions), len(conditions)), dtype=float)
         jinter = np.zeros((len(conditions), len(conditions)), dtype=float)
         junion = np.zeros((len(conditions), len(conditions)), dtype=float)
         for fname in labeled_files[stimtype]:
             data, target_labels, target_events, px2deg, sr = load_anderson(
-                stimtype, fname.format('RA'))
+                stimtype, fname.format(coder))
             target_labels = target_labels.astype(int)
 
             clf = EyegazeClassifier(
@@ -163,6 +164,7 @@ def confusion():
                         target_labels == anderson_remap[c2label]))
 
         nsamples = np.sum(conf)
+        nsamples_nopurs = np.sum(conf[:3, :3])
         # zero out diagonal for bandwidth
         conf *= ((np.eye(len(conditions)) - 1) * -1)
         pl.subplot(1, 3, plotter)
@@ -179,10 +181,14 @@ def confusion():
         )
         pl.xlabel('Human label')
         pl.ylabel('Detected')
-        pl.title('"{}" (glob. misclf-rate): {:.1f}%)'.format(
-            stimtype, (np.sum(conf) / nsamples) * 100))
+        pl.title('"{}" (glob. misclf-rate): {:.1f}% (w/o pursuit: {:.1f}%)'.format(
+            stimtype,
+            (np.sum(conf) / nsamples) * 100,
+            (np.sum(conf[:3, :3]) / nsamples_nopurs) * 100))
         plotter += 1
-    pl.show()
 
-confusion()
+confusion('MN')
+pl.show()
+confusion('RA')
+pl.show()
 #print_duration_stats()
