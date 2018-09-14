@@ -98,7 +98,8 @@ def print_duration_stats():
                     np.std(purs_durations),
                     len(purs_durations)))
 
-def confusion(coder):
+
+def confusion(refcoder, coder):
     conditions = ['FIX', 'SAC', 'PSO', 'PUR']
     #conditions = ['FIX', 'SAC', 'PSO']
     label_map = {
@@ -119,49 +120,57 @@ def confusion(coder):
         'PUR': 4,
     }
     plotter = 1
-    pl.suptitle('Jaccard index for movement class labeling algorithm vs. human coder {}'.format(coder))
+    pl.suptitle('Jaccard index for movement class labeling {} vs. {}'.format(
+        refcoder, coder))
     for stimtype in ('images', 'dots', 'videos'):
         conf = np.zeros((len(conditions), len(conditions)), dtype=float)
         jinter = np.zeros((len(conditions), len(conditions)), dtype=float)
         junion = np.zeros((len(conditions), len(conditions)), dtype=float)
         for fname in labeled_files[stimtype]:
-            data, target_labels, target_events, px2deg, sr = load_anderson(
-                stimtype, fname.format(coder))
-            target_labels = target_labels.astype(int)
+            labels = []
+            data = None
+            px2deg = None
+            sr = None
+            for src in (refcoder, coder):
+                if src in ('RA', 'MN'):
+                    data, target_labels, target_events, px2deg, sr = load_anderson(
+                        stimtype, fname.format(src))
+                    labels.append(target_labels.astype(int))
+                else:
+                    clf = EyegazeClassifier(
+                        px2deg=px2deg,
+                        sampling_rate=sr,
+                        pursuit_velthresh=5.,
+                        noise_factor=3.0,
+                        lowpass_cutoff_freq=10.0,
+                        min_fixation_duration=0.055,
+                    )
+                    p = clf.preproc(data)
+                    events = clf(p)
 
-            clf = EyegazeClassifier(
-                px2deg=px2deg,
-                sampling_rate=sr,
-                pursuit_velthresh=5.,
-                noise_factor=3.0,
-                lowpass_cutoff_freq=10.0,
-                min_fixation_duration=0.055,
-            )
-            p = clf.preproc(data)
-            events = clf(p)
-
-            # convert event list into anderson-style label array
-            labels = np.zeros(target_labels.shape, target_labels.dtype)
-            for ev in events:
-                labels[int(ev['start_time'] * sr):int((ev['end_time'])* sr)] = \
-                    anderson_remap[label_map[ev['label']]]
+                    # convert event list into anderson-style label array
+                    l = np.zeros(labels[0].shape, labels[0].dtype)
+                    for ev in events:
+                        l[int(ev['start_time'] * sr):int((ev['end_time'])* sr)] = \
+                            anderson_remap[label_map[ev['label']]]
+                    labels.append(l)
 
             #import pdb; pdb.set_trace()
             for c1, c1label in enumerate(conditions):
                 for c2, c2label in enumerate(conditions):
                     intersec = np.sum(np.logical_and(
-                        labels == anderson_remap[c1label],
-                        target_labels == anderson_remap[c2label]))
+                        labels[0] == anderson_remap[c1label],
+                        labels[1] == anderson_remap[c2label]))
                     union = np.sum(np.logical_or(
-                        labels == anderson_remap[c1label],
-                        target_labels == anderson_remap[c2label]))
+                        labels[0] == anderson_remap[c1label],
+                        labels[1] == anderson_remap[c2label]))
                     jinter[c1, c2] += intersec
                     junion[c1, c2] += union
                     #if c1 == c2:
                     #    continue
                     conf[c1, c2] += np.sum(np.logical_and(
-                        labels == anderson_remap[c1label],
-                        target_labels == anderson_remap[c2label]))
+                        labels[0] == anderson_remap[c1label],
+                        labels[1] == anderson_remap[c2label]))
 
         nsamples = np.sum(conf)
         nsamples_nopurs = np.sum(conf[:3, :3])
@@ -176,19 +185,21 @@ def confusion(coder):
             xticklabels=conditions,
             yticklabels=conditions,
             vmin=0.0,
-            vmax=0.6,
-            #mask=np.eye(len(conditions)),
+            vmax=1.0,
         )
-        pl.xlabel('Human label')
-        pl.ylabel('Detected')
+        pl.xlabel('{} labeling'.format(refcoder))
+        pl.ylabel('{} labeling'.format(coder))
         pl.title('"{}" (glob. misclf-rate): {:.1f}% (w/o pursuit: {:.1f}%)'.format(
             stimtype,
             (np.sum(conf) / nsamples) * 100,
             (np.sum(conf[:3, :3]) / nsamples_nopurs) * 100))
         plotter += 1
 
-confusion('MN')
+
+confusion('MN', 'RA')
 pl.show()
-confusion('RA')
+confusion('MN', 'ALGO')
+pl.show()
+confusion('RA', 'ALGO')
 pl.show()
 #print_duration_stats()
