@@ -194,6 +194,30 @@ def confusion(refcoder, coder):
             (np.sum(conf) / nsamples) * 100,
             (np.sum(conf[:3, :3]) / nsamples_nopurs) * 100))
         plotter += 1
+        msclf_refcoder = dict(zip(conditions, conf.sum(axis=1)/conf.sum() * 100))
+        msclf_coder = dict(zip(conditions, conf.sum(axis=0)/conf.sum() * 100))
+        print('### {}'.format(stimtype))
+        print('Comparison | MCLF | MCLFw/oP | Method | Fix | Sacc | PSO | SP')
+        print('--- | --- | --- | --- | --- | --- | --- | ---')
+        print('{} v {} | {:.1f} | {:.1f} | {} | {:.0f} | {:.0f} | {:.0f} | {:.0f}'.format(
+            refcoder,
+            coder,
+            (np.sum(conf) / nsamples) * 100,
+            (np.sum(conf[:3, :3]) / nsamples_nopurs) * 100,
+            refcoder,
+            msclf_refcoder['FIX'],
+            msclf_refcoder['SAC'],
+            msclf_refcoder['PSO'],
+            msclf_refcoder['PUR'],
+        ))
+        print('-- | --  | -- | {} | {:.0f} | {:.0f} | {:.0f} | {:.0f}'.format(
+            coder,
+            msclf_coder['FIX'],
+            msclf_coder['SAC'],
+            msclf_coder['PSO'],
+            msclf_coder['PUR'],
+        ))
+
 
 
 confusion('MN', 'RA')
