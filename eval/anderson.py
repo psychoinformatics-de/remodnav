@@ -13,14 +13,12 @@ labeled_files = {
         'UH21_trial17_labelled_{}.mat',
         'UH21_trial1_labelled_{}.mat',
         'UH25_trial1_labelled_{}.mat',
-        # following file is missing for RA
-        # https://github.com/richardandersson/EyeMovementDetectorEvaluation/issues/1
-        #'UH33_trial1_labelled_{}.mat',
+        'UH33_trial17_labelled_{}.mat',
         'UL27_trial17_labelled_{}.mat',
         'UL31_trial1_labelled_{}.mat',
         'UL39_trial1_labelled_{}.mat',
     ],
-    'images': [
+    'img': [
         'TH34_img_Europe_labelled_{}.mat',
         'TH34_img_vy_labelled_{}.mat',
         'TL20_img_konijntjes_labelled_{}.mat',
@@ -36,7 +34,7 @@ labeled_files = {
         'UL43_img_Rome_labelled_{}.mat',
         'UL47_img_konijntjes_labelled_{}.mat',
     ],
-    'videos': [
+    'video': [
         'TH34_video_BergoDalbana_labelled_{}.mat',
         'TH38_video_dolphin_fov_labelled_{}.mat',
         'TL30_video_triple_jump_labelled_{}.mat',
@@ -58,8 +56,8 @@ def get_durations(events, evcodes):
 
 
 def print_duration_stats():
-    for stimtype in ('images', 'dots', 'videos'):
-    #for stimtype in ('images', 'videos'):
+    for stimtype in ('img', 'dots', 'video'):
+    #for stimtype in ('img', 'video'):
         for coder in ('MN', 'RA'):
             print(stimtype, coder)
             fixation_durations = []
@@ -122,7 +120,7 @@ def confusion(refcoder, coder):
     plotter = 1
     pl.suptitle('Jaccard index for movement class labeling {} vs. {}'.format(
         refcoder, coder))
-    for stimtype in ('images', 'dots', 'videos'):
+    for stimtype in ('img', 'dots', 'video'):
         conf = np.zeros((len(conditions), len(conditions)), dtype=float)
         jinter = np.zeros((len(conditions), len(conditions)), dtype=float)
         junion = np.zeros((len(conditions), len(conditions)), dtype=float)
@@ -155,7 +153,18 @@ def confusion(refcoder, coder):
                             anderson_remap[label_map[ev['label']]]
                     labels.append(l)
 
-            #import pdb; pdb.set_trace()
+            nlabels = [len(l) for l in labels]
+            if len(np.unique(nlabels)) > 1:
+                print(
+                    "#\n# INCONSISTENCY Found label length mismatch between "
+                    "coders ({}, {}) for: {}\n#\n".format(
+                        refcoder, coder, fname))
+                print('Truncate labels to shorter sample: {}'.format(
+                    nlabels))
+                order_idx = np.array(nlabels).argsort()
+                labels[order_idx[1]] = \
+                    labels[order_idx[1]][:len(labels[order_idx[0]])]
+
             for c1, c1label in enumerate(conditions):
                 for c2, c2label in enumerate(conditions):
                     intersec = np.sum(np.logical_and(
