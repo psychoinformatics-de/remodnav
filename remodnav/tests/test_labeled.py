@@ -4,13 +4,17 @@ import os.path as op
 from .. import clf as CLF
 
 
-def load_data(category, name):
+def load_data(category, name, basepath=None):
     from scipy.io import loadmat
     from datalad.api import get
 
-    fname = op.join(
+    if basepath is None:
+        basepath = op.join(
         'remodnav', 'tests', 'data', 'anderson_etal', 'annotated_data',
-        'data used in the article',
+        'data used in the article')
+
+    fname = op.join(
+        basepath,
         category, name + ('' if name.endswith('.mat') else '.mat'))
     get(fname)
     m = loadmat(fname)
