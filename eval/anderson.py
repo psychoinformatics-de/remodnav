@@ -76,24 +76,24 @@ def print_duration_stats():
                 purs_durations.extend(get_durations(
                     target_events, ['PURS']))
             print(
-                'FIX: %.3f (%.3f) [%i]' % (
-                    np.mean(fixation_durations),
-                    np.std(fixation_durations),
+                'FIX: %i (%i) [%i]' % (
+                    np.mean(fixation_durations) * 1000,
+                    np.std(fixation_durations) * 1000,
                     len(fixation_durations)))
             print(
-                'SAC: %.3f (%.3f) [%i]' % (
-                    np.mean(saccade_durations),
-                    np.std(saccade_durations),
+                'SAC: %i (%i) [%i]' % (
+                    np.mean(saccade_durations) * 1000,
+                    np.std(saccade_durations) * 1000,
                     len(saccade_durations)))
             print(
-                'PSO: %.3f (%.3f) [%i]' % (
-                    np.mean(pso_durations),
-                    np.std(pso_durations),
+                'PSO: %i (%i) [%i]' % (
+                    np.mean(pso_durations) * 1000,
+                    np.std(pso_durations) * 1000,
                     len(pso_durations)))
             print(
-                'PURS: %.3f (%.3f) [%i]' % (
-                    np.mean(purs_durations),
-                    np.std(purs_durations),
+                'PURS: %i (%i) [%i]' % (
+                    np.mean(purs_durations) * 1000,
+                    np.std(purs_durations) * 1000,
                     len(purs_durations)))
 
 
@@ -229,10 +229,10 @@ def confusion(refcoder, coder):
 
 
 
-confusion('MN', 'RA')
-pl.show()
-confusion('MN', 'ALGO')
-pl.show()
-confusion('RA', 'ALGO')
-pl.show()
-#print_duration_stats()
+#confusion('MN', 'RA')
+#pl.show()
+#confusion('MN', 'ALGO')
+#pl.show()
+#confusion('RA', 'ALGO')
+#pl.show()
+print_duration_stats()

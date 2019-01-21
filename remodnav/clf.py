@@ -786,8 +786,8 @@ class EyegazeClassifier(object):
         Parameters
         ----------
         min_blink_duration : float
-          In seconds. Any signal loss shorter than this duration with not be
-          considered for `dilate_blink`.
+          In seconds. Any signal loss shorter than this duration will not be
+          considered for `dilate_nan`.
         dilate_nan : float
           Duration by which to dilate a blink window (missing data segment) on
           either side (in seconds).

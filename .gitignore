@@ -13,3 +13,4 @@ tmp
 .rej
 .*.swp
 .travis.yml.evil-bd
+**/__pycache__
