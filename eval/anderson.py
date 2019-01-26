@@ -3,6 +3,8 @@ import pylab as pl
 import seaborn as sns
 from remodnav import EyegazeClassifier
 from remodnav.tests.test_labeled import load_data as load_anderson
+import pdb
+import pandas as pd
 
 labeled_files = {
     'dots': [
@@ -54,7 +56,6 @@ def get_durations(events, evcodes):
     durations = [e['end_time'] - e['start_time'] for e in events]
     return durations
 
-
 def print_duration_stats():
     for stimtype in ('img', 'dots', 'video'):
     #for stimtype in ('img', 'video'):
@@ -96,6 +97,54 @@ def print_duration_stats():
                     np.std(purs_durations) * 1000,
                     len(purs_durations)))
 
+
+def remodnav_on_anderson():
+    for stimtype in ('img', 'dots', 'video'):
+    #for stimtype in ('img', 'video'):
+        for coder in ('MN', 'RA'):
+            print(stimtype, coder)
+            fixation_durations = []
+            saccade_durations = []
+            pso_durations = []
+            purs_durations = []
+            for fname in labeled_files[stimtype]:
+                data, target_labels, target_events, px2deg, sr = load_anderson(
+                    stimtype, fname.format(coder))
+
+                clf = EyegazeClassifier(
+                    px2deg=px2deg,
+                    sampling_rate=sr,
+                    pursuit_velthresh=5.,
+                    noise_factor=3.0,
+                    lowpass_cutoff_freq=10.0,
+                )
+                p = clf.preproc(data)
+                events = clf(p)
+                events = pd.DataFrame(events)
+                saccades = events[events['label'] == 'SACC']
+                isaccades = events[events['label'] == 'ISAC']
+                hvpso = events[(events['label'] == 'HPSO') | (events['label'] == 'IHPS')]
+                lvpso = events[(events['label'] == 'LPSO') | (events['label'] == 'ILPS')]
+
+                pl.figure(figsize=(6,4))
+                for ev, sym, color, label in (
+                        (saccades, '.', 'black', 'saccades'),
+                        (isaccades, '.', 'xkcd:green teal', '"minor" saccades'),
+                        (hvpso, '+', 'xkcd:burnt sienna', 'fast PSOs'),
+                        (lvpso, '+', 'xkcd:azure', 'slow PSOs'))[::-1]:
+                    pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
+                            alpha=.2, lw=1, label=label)
+
+                pl.ylim((10.0, 1000)) #previously args.max_vel
+                pl.xlim((0.01, 40.0))
+                pl.legend(loc=4)
+                pl.ylabel('peak velocities (deg/s)')
+                pl.xlabel('amplitude (deg)')
+                pl.savefig(
+                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname),bbox_inches='tight', format='svg')
+
+                
+                
 
 def confusion(refcoder, coder):
     conditions = ['FIX', 'SAC', 'PSO', 'PUR']
