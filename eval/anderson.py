@@ -4,7 +4,9 @@ import seaborn as sns
 from remodnav import EyegazeClassifier
 from remodnav.tests.test_labeled import load_data as load_anderson
 import pdb
+#pdb.set_trace() to set breakpoint
 import pandas as pd
+
 
 labeled_files = {
     'dots': [
@@ -98,7 +100,7 @@ def print_duration_stats():
                     len(purs_durations)))
 
 
-def remodnav_on_anderson():
+def remodnav_on_anderson_mainseq():
     for stimtype in ('img', 'dots', 'video'):
     #for stimtype in ('img', 'video'):
         for coder in ('MN', 'RA'):
@@ -135,13 +137,58 @@ def remodnav_on_anderson():
                     pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
                             alpha=.2, lw=1, label=label)
 
-                pl.ylim((10.0, 1000)) #previously args.max_vel
+                pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
                 pl.xlim((0.01, 40.0))
                 pl.legend(loc=4)
                 pl.ylabel('peak velocities (deg/s)')
                 pl.xlabel('amplitude (deg)')
                 pl.savefig(
-                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname),bbox_inches='tight', format='svg')
+                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+
+def preproc_on_anderson_mainseq():
+    for stimtype in ('img', 'dots', 'video'):
+    #for stimtype in ('img', 'video'):
+        for coder in ('MN', 'RA'):
+            print(stimtype, coder)
+            fixation_durations = []
+            saccade_durations = []
+            pso_durations = []
+            purs_durations = []
+            for fname in labeled_files[stimtype]:
+                #pdb.set_trace()
+                data, target_labels, target_events, px2deg, sr = load_anderson( #change to load_anderson
+                    stimtype, fname.format(coder))
+                #pdb.set_trace()
+
+                clf = EyegazeClassifier(
+                    px2deg=px2deg,
+                    sampling_rate=sr,
+                    pursuit_velthresh=5.,
+                    noise_factor=3.0,
+                    lowpass_cutoff_freq=10.0,
+                )
+                pproc = clf.preproc(data)
+                pproc_df = pd.DataFrame(pproc) #misleading var name - this is not event data -name pproc_df
+                target_events_df = pd.DataFrame(target_events)
+                
+                saccade_events = target_events_df[target_events_df.label == "SACC"]
+                peak_vels = []
+                amp       = []
+                for row in saccade_events.itertuples():
+                    peak_vels.append(pproc_df.vel.loc[row.start_index:row.end_index].max())
+                    amp.append ((((pproc_df.x.loc[row.start_index] - pproc_df.x.loc[row.end_index]) ** 2 + \
+                    (pproc_df.y.loc[row.start_index] - pproc_df.y.loc[row.end_index]) ** 2) ** 0.5) * px2deg)
+                    
+                #See plot format in other function
+                pl.clf()
+                plot = sns.scatterplot(x=amp,y=peak_vels)
+                plot.set(yscale="log")
+                plot.set(xscale="log")
+                
+                print(len(peak_vels))
+                print(len(amp))
+                pl.savefig(
+                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
 
                 
                 
@@ -285,3 +332,4 @@ def confusion(refcoder, coder):
 #confusion('RA', 'ALGO')
 #pl.show()
 print_duration_stats()
+preproc_on_anderson_mainseq()
