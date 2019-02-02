@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import os.path as op
+
 from .. import clf as CLF
 
 
@@ -23,6 +24,8 @@ def load_data(category, name, basepath=None):
     screen_width = m['ETdata']['screenDim'][0][0][0][0]
     screen_res = m['ETdata']['screenRes'][0][0][0][0]
     px2deg = CLF.deg_per_pixel(screen_width, vdist, screen_res)
+    #testing
+    #px2deg = 0.001
     sr = float(m['ETdata']['sampFreq'][0][0][0][0])
     data = np.rec.fromarrays([
         m['ETdata']['pos'][0][0][:, 3],
@@ -52,17 +55,28 @@ def load_data(category, name, basepath=None):
                 label=label_remap.get(ev_type),
                 start_time=0.0 if ev_start is None else
                 float(ev_start) / sr,
+                start_index=0 if ev_start is None else
+                ev_start,
+                
                 end_time=float(i) / sr,
+                end_index=i,
             ))
+            
             ev_type = s if s in label_remap.keys() else None
             ev_start = i
+            
     if ev_type is not None:
         events.append(dict(
             id=len(events),
             label=label_remap.get(ev_type),
             start_time=0.0 if ev_start is None else
             float(ev_start) / sr,
+            start_index=0 if ev_start is None else
+            ev_start,
+            
             end_time=float(i) / sr,
+            end_index=i,
+            
         ))
     return data, labels, events, px2deg, sr
 
