@@ -168,27 +168,51 @@ def preproc_on_anderson_mainseq():
                     lowpass_cutoff_freq=10.0,
                 )
                 pproc = clf.preproc(data)
-                pproc_df = pd.DataFrame(pproc) #misleading var name - this is not event data -name pproc_df
+                pproc_df = pd.DataFrame(pproc) 
                 target_events_df = pd.DataFrame(target_events)
                 
                 saccade_events = target_events_df[target_events_df.label == "SACC"]
                 peak_vels = []
                 amp       = []
-                for row in saccade_events.itertuples():
+                for row in target_events_df.itertuples():
                     peak_vels.append(pproc_df.vel.loc[row.start_index:row.end_index].max())
                     amp.append ((((pproc_df.x.loc[row.start_index] - pproc_df.x.loc[row.end_index]) ** 2 + \
                     (pproc_df.y.loc[row.start_index] - pproc_df.y.loc[row.end_index]) ** 2) ** 0.5) * px2deg)
-                    
+                
+                peaks_amps_df = pd.DataFrame({'peak_vels':peak_vels,'amp':amp})
+                target_events_df= pd.concat([target_events_df, peaks_amps_df], axis=1)
+                
+                saccades = target_events_df[target_events_df['label'] == 'SACC']
+                pso = target_events_df[target_events_df['label'] == 'PSO']
+
+                pl.figure(figsize=(6,4))
+                for ev, sym, color, label in (
+                        (saccades, '.', 'black', 'saccades'),
+                        (pso, '+', 'xkcd:burnt sienna', 'PSOs'))[::-1]:
+                    pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
+                            alpha=.2, lw=1, label=label)
+
+                pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
+                pl.xlim((0.01, 40.0))
+                pl.legend(loc=4)
+                pl.ylabel('peak velocities (deg/s)')
+                pl.xlabel('amplitude (deg)')
+                pl.savefig(
+                    '{}_{}_{}_mainseq_preproc_on_anderson.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+
+                
+                
+                
                 #See plot format in other function
-                pl.clf()
-                plot = sns.scatterplot(x=amp,y=peak_vels)
-                plot.set(yscale="log")
-                plot.set(xscale="log")
+                #pl.clf()
+                #plot = sns.scatterplot(x=amp,y=peak_vels)
+                #plot.set(yscale="log")
+                #plot.set(xscale="log")
                 
                 print(len(peak_vels))
                 print(len(amp))
-                pl.savefig(
-                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+                #pl.savefig(
+                    #'{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
 
                 
                 
