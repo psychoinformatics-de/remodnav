@@ -143,7 +143,7 @@ def remodnav_on_anderson_mainseq():
                 pl.ylabel('peak velocities (deg/s)')
                 pl.xlabel('amplitude (deg)')
                 pl.savefig(
-                    '{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+                    '{}_{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
 
 def preproc_on_anderson_mainseq():
     for stimtype in ('img', 'dots', 'video'):
@@ -155,10 +155,8 @@ def preproc_on_anderson_mainseq():
             pso_durations = []
             purs_durations = []
             for fname in labeled_files[stimtype]:
-                #pdb.set_trace()
                 data, target_labels, target_events, px2deg, sr = load_anderson( #change to load_anderson
                     stimtype, fname.format(coder))
-                #pdb.set_trace()
 
                 clf = EyegazeClassifier(
                     px2deg=px2deg,
@@ -199,21 +197,9 @@ def preproc_on_anderson_mainseq():
                 pl.xlabel('amplitude (deg)')
                 pl.savefig(
                     '{}_{}_{}_mainseq_preproc_on_anderson.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
-
-                
-                
-                
-                #See plot format in other function
-                #pl.clf()
-                #plot = sns.scatterplot(x=amp,y=peak_vels)
-                #plot.set(yscale="log")
-                #plot.set(xscale="log")
                 
                 print(len(peak_vels))
                 print(len(amp))
-                #pl.savefig(
-                    #'{}_{}_{}_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
-
                 
                 
 
