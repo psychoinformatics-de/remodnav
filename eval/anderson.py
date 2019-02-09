@@ -273,13 +273,8 @@ def preproc_on_anderson_mainseq_superimp():
                 
                     superimp_figure_index += 1
 
-
-                
                 print(len(peak_vels))
                 print(len(amp))
-        
-        #pdb.set_trace() ########        
-        #len(labeled_files[stimtype])       
     # Closing set of plots made for each stimulus type
     pl.close('all')
                 
