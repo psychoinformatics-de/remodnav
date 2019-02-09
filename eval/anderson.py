@@ -146,6 +146,7 @@ def remodnav_on_anderson_mainseq():
                     '{}_{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
 
 def preproc_on_anderson_mainseq():
+    #for sequentially making main sequences of all the available files
     for stimtype in ('img', 'dots', 'video'):
     #for stimtype in ('img', 'video'):
         for coder in ('MN', 'RA'):
@@ -201,6 +202,86 @@ def preproc_on_anderson_mainseq():
                 print(len(peak_vels))
                 print(len(amp))
                 
+def preproc_on_anderson_mainseq_superimp():
+    #for making main sequences with Human coders superimposed on one another
+    
+    for stimtype in ('img', 'dots', 'video'):
+    #for stimtype in ('img', 'video'):
+        for coder in ('MN', 'RA'):
+            print(stimtype, coder)
+            fixation_durations = []
+            saccade_durations = []
+            pso_durations = []
+            purs_durations = []
+            for fname in labeled_files[stimtype]:
+                data, target_labels, target_events, px2deg, sr = load_anderson( #change to load_anderson
+                    stimtype, fname.format(coder))
+
+                clf = EyegazeClassifier(
+                    px2deg=px2deg,
+                    sampling_rate=sr,
+                    pursuit_velthresh=5.,
+                    noise_factor=3.0,
+                    lowpass_cutoff_freq=10.0,
+                )
+                pproc = clf.preproc(data)
+                pproc_df = pd.DataFrame(pproc) 
+                target_events_df = pd.DataFrame(target_events)
+                
+                saccade_events = target_events_df[target_events_df.label == "SACC"]
+                peak_vels = []
+                amp       = []
+                for row in target_events_df.itertuples():
+                    peak_vels.append(pproc_df.vel.loc[row.start_index:row.end_index].max())
+                    amp.append ((((pproc_df.x.loc[row.start_index] - pproc_df.x.loc[row.end_index]) ** 2 + \
+                    (pproc_df.y.loc[row.start_index] - pproc_df.y.loc[row.end_index]) ** 2) ** 0.5) * px2deg)
+                
+                peaks_amps_df = pd.DataFrame({'peak_vels':peak_vels,'amp':amp})
+                target_events_df= pd.concat([target_events_df, peaks_amps_df], axis=1)
+                
+                saccades = target_events_df[target_events_df['label'] == 'SACC']
+                pso = target_events_df[target_events_df['label'] == 'PSO']
+                
+                
+                
+                if coder == 'MN':
+                    pl.figure(figsize=(6,4))
+                    for ev, sym, color, label in (
+                            (saccades, '.', 'red', 'saccades'),
+                            (pso, '+', 'red', 'PSOs'))[::-1]:
+                        pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
+                                alpha=.7, lw=1, label=label)
+                                
+                    pl.ylim((10.0, 1000)) #TODO previously args.max_vel, put this back in
+                    pl.xlim((0.01, 40.0))
+                    pl.legend(loc=4)
+                    pl.ylabel('peak velocities (deg/s)')
+                    pl.xlabel('amplitude (deg)')
+                    
+                    superimp_figure_index = 1
+                    
+                elif coder == 'RA':
+                    pl.figure(superimp_figure_index)
+                    for ev, sym, color, label in (
+                            (saccades, '.', 'blue', 'saccades'),
+                            (pso, '+', 'blue', 'PSOs'))[::-1]:
+                        pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
+                                alpha=.7, lw=1, label=label)
+                                
+                    pl.savefig(
+                        '{}_{}_{}_mainseq_preproc_on_anderson_superimposed.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+                
+                    superimp_figure_index += 1
+
+
+                
+                print(len(peak_vels))
+                print(len(amp))
+        
+        #pdb.set_trace() ########        
+        #len(labeled_files[stimtype])       
+    # Closing set of plots made for each stimulus type
+    pl.close('all')
                 
 
 def confusion(refcoder, coder):
@@ -341,5 +422,5 @@ def confusion(refcoder, coder):
 #pl.show()
 #confusion('RA', 'ALGO')
 #pl.show()
-print_duration_stats()
-preproc_on_anderson_mainseq()
+#print_duration_stats()
+#preproc_on_anderson_mainseq()
