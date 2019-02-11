@@ -156,7 +156,7 @@ def preproc_on_anderson_mainseq():
             pso_durations = []
             purs_durations = []
             for fname in labeled_files[stimtype]:
-                data, target_labels, target_events, px2deg, sr = load_anderson( #change to load_anderson
+                data, target_labels, target_events, px2deg, sr = load_anderson( 
                     stimtype, fname.format(coder))
 
                 clf = EyegazeClassifier(
@@ -202,11 +202,16 @@ def preproc_on_anderson_mainseq():
                 print(len(peak_vels))
                 print(len(amp))
                 
-def preproc_on_anderson_mainseq_superimp():
+def preproc_on_anderson_mainseq_superimp(superimp = "coders"):
+    """ by default will make main sequences for each coder for each file
+    "stimulus" for superimposed main sequences of each stimulus type"""
     #for making main sequences with Human coders superimposed on one another
     
     for stimtype in ('img', 'dots', 'video'):
     #for stimtype in ('img', 'video'):
+        if superimp == "stimulus":
+            pl.figure(figsize=(6,4))
+            
         for coder in ('MN', 'RA'):
             print(stimtype, coder)
             fixation_durations = []
@@ -245,7 +250,8 @@ def preproc_on_anderson_mainseq_superimp():
                 
                 
                 if coder == 'MN':
-                    pl.figure(figsize=(6,4))
+                    if superimp == "coders":
+                        pl.figure(figsize=(6,4))
                     for ev, sym, color, label in (
                             (saccades, '.', 'red', 'saccades'),
                             (pso, '+', 'red', 'PSOs'))[::-1]:
@@ -261,22 +267,28 @@ def preproc_on_anderson_mainseq_superimp():
                     superimp_figure_index = 1
                     
                 elif coder == 'RA':
-                    pl.figure(superimp_figure_index)
+                    if superimp == "coders":
+                        pl.figure(superimp_figure_index)
                     for ev, sym, color, label in (
                             (saccades, '.', 'blue', 'saccades'),
                             (pso, '+', 'blue', 'PSOs'))[::-1]:
                         pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
                                 alpha=.7, lw=1, label=label)
-                                
-                    pl.savefig(
-                        '{}_{}_{}_mainseq_preproc_on_anderson_superimposed.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+                    
+                    if superimp == "coders":           
+                        pl.savefig(
+                            '{}_{}_{}_mainseq_preproc_on_anderson_superimposed.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
                 
                     superimp_figure_index += 1
 
                 print(len(peak_vels))
                 print(len(amp))
-    # Closing set of plots made for each stimulus type
-    pl.close('all')
+        if superimp == "stimulus":
+            pl.savefig(
+                '{}_mainseq_preproc_on_anderson_superimposed.svg'.format(stimtype ),bbox_inches='tight', format='svg')
+                     
+        # Closing set of plots made for each stimulus type
+        pl.close('all')
                 
 
 def confusion(refcoder, coder):
