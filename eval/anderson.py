@@ -100,10 +100,15 @@ def print_duration_stats():
                     len(purs_durations)))
 
 
-def remodnav_on_anderson_mainseq():
+def remodnav_on_anderson_mainseq(superimp = "trials"):
+    """ by default will make main sequences for each trial/file.
+    superimp = "stimulus" for superimposed main sequences of each stimulus 
+    type"""
     for stimtype in ('img', 'dots', 'video'):
     #for stimtype in ('img', 'video'):
-        for coder in ('MN', 'RA'):
+        if superimp == "stimulus":
+            pl.figure(figsize=(6,4))
+        for coder in ('MN'):
             print(stimtype, coder)
             fixation_durations = []
             saccade_durations = []
@@ -128,22 +133,29 @@ def remodnav_on_anderson_mainseq():
                 hvpso = events[(events['label'] == 'HPSO') | (events['label'] == 'IHPS')]
                 lvpso = events[(events['label'] == 'LPSO') | (events['label'] == 'ILPS')]
 
-                pl.figure(figsize=(6,4))
+                if superimp == "trials": 
+                    pl.figure(figsize=(6,4))
                 for ev, sym, color, label in (
-                        (saccades, '.', 'black', 'saccades'),
-                        (isaccades, '.', 'xkcd:green teal', '"minor" saccades'),
-                        (hvpso, '+', 'xkcd:burnt sienna', 'fast PSOs'),
-                        (lvpso, '+', 'xkcd:azure', 'slow PSOs'))[::-1]:
+                        (saccades, '.', 'xkcd:green teal', 'Segment defining saccade'),
+                        (isaccades, '.', 'black', 'Saccades'),
+                        (hvpso, '+', 'xkcd:azure', 'High velocity PSOs'),
+                        (lvpso, '+', 'xkcd:burnt sienna', 'PSOs'))[::-1]:
                     pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
-                            alpha=.2, lw=1, label=label)
+                            alpha=.7, lw=1, label=label)
 
                 pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
                 pl.xlim((0.01, 40.0))
                 pl.legend(loc=4)
                 pl.ylabel('peak velocities (deg/s)')
                 pl.xlabel('amplitude (deg)')
-                pl.savefig(
-                    '{}_{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
+                if superimp == "trials":
+                    pl.savefig(
+                        '{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
+                        
+        if superimp == "stimulus":
+            pl.savefig(
+                '{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
+                        
 
 def preproc_on_anderson_mainseq():
     #for sequentially making main sequences of all the available files
@@ -431,3 +443,4 @@ def confusion(refcoder, coder):
 #pl.show()
 #print_duration_stats()
 #preproc_on_anderson_mainseq()
+remodnav_on_anderson_mainseq()
