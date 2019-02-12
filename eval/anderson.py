@@ -108,54 +108,55 @@ def remodnav_on_anderson_mainseq(superimp = "trials"):
     #for stimtype in ('img', 'video'):
         if superimp == "stimulus":
             pl.figure(figsize=(6,4))
-        for coder in ('MN'):
-            print(stimtype, coder)
-            fixation_durations = []
-            saccade_durations = []
-            pso_durations = []
-            purs_durations = []
-            for fname in labeled_files[stimtype]:
-                data, target_labels, target_events, px2deg, sr = load_anderson(
-                    stimtype, fname.format(coder))
+            
+        coder  = 'MN'
+        print(stimtype, coder)
+        fixation_durations = []
+        saccade_durations = []
+        pso_durations = []
+        purs_durations = []
+        for fname in labeled_files[stimtype]:
+            data, target_labels, target_events, px2deg, sr = load_anderson(
+                stimtype, fname.format(coder))
 
-                clf = EyegazeClassifier(
-                    px2deg=px2deg,
-                    sampling_rate=sr,
-                    pursuit_velthresh=5.,
-                    noise_factor=3.0,
-                    lowpass_cutoff_freq=10.0,
-                )
-                p = clf.preproc(data)
-                events = clf(p)
-                events = pd.DataFrame(events)
-                saccades = events[events['label'] == 'SACC']
-                isaccades = events[events['label'] == 'ISAC']
-                hvpso = events[(events['label'] == 'HPSO') | (events['label'] == 'IHPS')]
-                lvpso = events[(events['label'] == 'LPSO') | (events['label'] == 'ILPS')]
+            clf = EyegazeClassifier(
+                px2deg=px2deg,
+                sampling_rate=sr,
+                pursuit_velthresh=5.,
+                noise_factor=3.0,
+                lowpass_cutoff_freq=10.0,
+            )
+            p = clf.preproc(data)
+            events = clf(p)
+            events = pd.DataFrame(events)
+            saccades = events[events['label'] == 'SACC']
+            isaccades = events[events['label'] == 'ISAC']
+            hvpso = events[(events['label'] == 'HPSO') | (events['label'] == 'IHPS')]
+            lvpso = events[(events['label'] == 'LPSO') | (events['label'] == 'ILPS')]
 
-                if superimp == "trials": 
-                    pl.figure(figsize=(6,4))
-                for ev, sym, color, label in (
-                        (saccades, '.', 'xkcd:green teal', 'Segment defining saccade'),
-                        (isaccades, '.', 'black', 'Saccades'),
-                        (hvpso, '+', 'xkcd:azure', 'High velocity PSOs'),
-                        (lvpso, '+', 'xkcd:burnt sienna', 'PSOs'))[::-1]:
-                    pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
-                            alpha=.7, lw=1, label=label)
+            if superimp == "trials": 
+                pl.figure(figsize=(6,4))
+            for ev, sym, color, label in (
+                    (saccades, '.', 'xkcd:light aqua', 'Segment defining saccade'),
+                    (isaccades, '.', 'xkcd:dark aqua', 'Saccades'),
+                    (hvpso, '+', 'xkcd:pinkish', 'High velocity PSOs'),
+                    (lvpso, '+', 'xkcd:wine', 'PSOs'))[::-1]:
+                pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
+                        alpha=.7, lw=1, label=label)
 
-                pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
-                pl.xlim((0.01, 40.0))
-                pl.legend(loc=4)
-                pl.ylabel('peak velocities (deg/s)')
-                pl.xlabel('amplitude (deg)')
-                if superimp == "trials":
-                    pl.savefig(
-                        '{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
-                        
+            pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
+            pl.xlim((0.01, 40.0))
+            pl.legend(loc=4)
+            pl.ylabel('peak velocities (deg/s)')
+            pl.xlabel('amplitude (deg)')
+            if superimp == "trials":
+                pl.savefig(
+                    '{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
+                    
         if superimp == "stimulus":
             pl.savefig(
-                '{}_{}_remodnav_on_testdata_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
-                        
+                '{}_remodnav_on_testdata_superimp_mainseq.svg'.format(stimtype,fname[0:15]),bbox_inches='tight', format='svg')
+        pl.close('all')   
 
 def preproc_on_anderson_mainseq():
     #for sequentially making main sequences of all the available files
@@ -443,4 +444,5 @@ def confusion(refcoder, coder):
 #pl.show()
 #print_duration_stats()
 #preproc_on_anderson_mainseq()
-remodnav_on_anderson_mainseq()
+#remodnav_on_anderson_mainseq()
+#remodnav_on_anderson_mainseq("stimulus")
