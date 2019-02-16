@@ -446,3 +446,9 @@ def confusion(refcoder, coder):
 #preproc_on_anderson_mainseq()
 #remodnav_on_anderson_mainseq()
 #remodnav_on_anderson_mainseq("stimulus")
+
+#For the paper:
+#preproc_on_anderson_mainseq_superimp()
+#preproc_on_anderson_mainseq_superimp("stimulus")
+#remodnav_on_anderson_mainseq()
+#remodnav_on_anderson_mainseq("stimulus")
