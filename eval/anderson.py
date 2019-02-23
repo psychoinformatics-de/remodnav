@@ -137,12 +137,12 @@ def remodnav_on_anderson_mainseq(superimp = "trials"):
             if superimp == "trials": 
                 pl.figure(figsize=(6,4))
             for ev, sym, color, label in (
-                    (saccades, '.', 'xkcd:light aqua', 'Segment defining saccade'),
-                    (isaccades, '.', 'xkcd:dark aqua', 'Saccades'),
+                    (saccades, '.', 'xkcd:green grey', 'Segment defining saccade'),
+                    (isaccades, '.', 'xkcd:dark olive', 'Saccades'),
                     (hvpso, '+', 'xkcd:pinkish', 'High velocity PSOs'),
                     (lvpso, '+', 'xkcd:wine', 'PSOs'))[::-1]:
                 pl.loglog(ev['amp'], ev['peak_vel'], sym, color=color,
-                        alpha=.7, lw=1, label=label)
+                        alpha=1, lw=1, label=label)
 
             pl.ylim((10.0, 1000)) #previously args.max_vel, put this back in
             pl.xlim((0.01, 40.0))
@@ -209,6 +209,7 @@ def preproc_on_anderson_mainseq():
                 pl.legend(loc=4)
                 pl.ylabel('peak velocities (deg/s)')
                 pl.xlabel('amplitude (deg)')
+                pl.tick_params(which='both',direction = 'in')
                 pl.savefig(
                     '{}_{}_{}_mainseq_preproc_on_anderson.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
                 
@@ -269,13 +270,14 @@ def preproc_on_anderson_mainseq_superimp(superimp = "coders"):
                             (saccades, '.', 'red', 'saccades'),
                             (pso, '+', 'red', 'PSOs'))[::-1]:
                         pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
-                                alpha=.7, lw=1, label=label)
+                                alpha=1, lw=1, label=label)
                                 
                     pl.ylim((10.0, 1000)) #TODO previously args.max_vel, put this back in
                     pl.xlim((0.01, 40.0))
                     pl.legend(loc=4)
                     pl.ylabel('peak velocities (deg/s)')
                     pl.xlabel('amplitude (deg)')
+                    pl.tick_params(which='both' ,direction = 'in')
                     
                     superimp_figure_index = 1
                     
@@ -286,8 +288,7 @@ def preproc_on_anderson_mainseq_superimp(superimp = "coders"):
                             (saccades, '.', 'blue', 'saccades'),
                             (pso, '+', 'blue', 'PSOs'))[::-1]:
                         pl.loglog(ev['amp'], ev['peak_vels'], sym, color=color,
-                                alpha=.7, lw=1, label=label)
-                    
+                                alpha=1, lw=1, label=label)
                     if superimp == "coders":           
                         pl.savefig(
                             '{}_{}_{}_mainseq_preproc_on_anderson_superimposed.svg'.format(stimtype, coder,fname[0:15]),bbox_inches='tight', format='svg')
