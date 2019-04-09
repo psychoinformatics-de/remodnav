@@ -90,41 +90,60 @@ def show_gaze(data=None, pp=None, events=None,
     }
 
     import pylab as pl
+    ax1 = pl.gca()
     if data is not None:
-        pl.plot(
-            np.linspace(0, len(data) / sampling_rate, len(data)),
+        time_idx = np.linspace(0, len(data) / sampling_rate, len(data))
+        ax1.plot(
+            time_idx,
             data['x'],
             color='xkcd:pig pink', lw=1)
-        pl.plot(
-            np.linspace(0, len(data) / sampling_rate, len(data)),
+        ax1.plot(
+            time_idx,
             data['y'],
             color='xkcd:pig pink', lw=1)
     if pp is not None:
+        time_idx = np.linspace(0, len(pp) / sampling_rate, len(pp))
         if show_vels:
-            pl.plot(
-                np.linspace(0, len(pp) / sampling_rate, len(pp)),
+            vel_color = 'xkcd:gunmetal'
+            # instantiate a second axes that shares the same x-axis
+            ax2 = ax1.twinx()
+            ax2.set_yscale('log')
+            ax2.plot(
+                time_idx,
                 pp['vel'],
-                color='xkcd:gunmetal', lw=1)
-        pl.plot(
-            np.linspace(0, len(pp) / sampling_rate, len(pp)),
+                color=vel_color,
+                lw=.5,
+                alpha=0.8)
+            ax2.set_ylabel('Velocity (deg/s)', color=vel_color)
+            ax2.tick_params(axis='y', labelcolor=vel_color)
+        ax1.plot(
+            time_idx,
             pp['x'],
             color='black', lw=1)
-        pl.plot(
-            np.linspace(0, len(pp) / sampling_rate, len(pp)),
+        ax1.plot(
+            time_idx,
             pp['y'],
             color='black', lw=1)
         #pl.plot(
-        #    np.linspace(0, len(pp) / sampling_rate, len(pp)),
+        #    time_idx,
         #    pp['med_vel'],
         #    color='black')
     if events is not None:
         for ev in events:
-            pl.axvspan(
+            ax1.axvspan(
                 ev['start_time'],
                 ev['end_time'],
                 color=colors[ev['label']],
                 alpha=0.3)
             #pl.text(ev['start_time'], 0, '{:.1f}'.format(ev['id']), color='red')
+    if data is not None or pp is not None:
+        ax1.set_ylabel('Coordinates (pixel)')
+        ax1.set_xlabel('Time (seconds)')
+        # make figure tight
+        duration = \
+            float(max(len(data) if data is not None else 0,
+                      len(pp) if pp is not None else 0)) / sampling_rate
+        ax1.set_xlim(0, duration)
 
 
 def events2df(events):
