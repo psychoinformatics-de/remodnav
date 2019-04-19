@@ -76,17 +76,22 @@ def samp2file(data, fname):
 
 
 def show_gaze(data=None, pp=None, events=None,
-              sampling_rate=1000.0, show_vels=True):
+              sampling_rate=1000.0, show_vels=True,
+              coord_lim=None, vel_lim=(0, 1000)):
+    # using the seaborn-recommended qualitative colormap for colorblind
     colors = {
-        'FIXA': 'xkcd:beige',
-        'PURS': 'xkcd:burnt sienna',
-        'SACC': 'xkcd:spring green',
-        'ISAC': 'xkcd:pea green',
-        'HPSO': 'xkcd:azure',
-        'IHPS': 'xkcd:azure',
-        'LPSO': 'xkcd:faded blue',
-        'ILPS': 'xkcd:faded blue',
-        'PSO': 'xkcd:blue',
+        'FIXA': '#029e73',
+        'PURS': '#de8f05',
+
+        'SACC': '#0173b2',
+        'ISAC': '#56b4e9',
+
+        'HPSO': '#cc78bc',
+        'IHPS': '#cc78bc',
+        'LPSO': '#fbafe4',
+        'ILPS': '#fbafe4',
+
+        'PSO': '#cc78bc',
     }
 
     import pylab as pl
@@ -96,11 +101,11 @@ def show_gaze(data=None, pp=None, events=None,
         ax1.plot(
             time_idx,
             data['x'],
-            color='xkcd:pig pink', lw=1)
+            color='#ca9161', lw=1)
         ax1.plot(
             time_idx,
             data['y'],
-            color='xkcd:pig pink', lw=1)
+            color='#ca9161', lw=1)
     if pp is not None:
         time_idx = np.linspace(0, len(pp) / sampling_rate, len(pp))
         if show_vels:
@@ -116,6 +121,7 @@ def show_gaze(data=None, pp=None, events=None,
                 alpha=0.8)
             ax2.set_ylabel('Velocity (deg/s)', color=vel_color)
             ax2.tick_params(axis='y', labelcolor=vel_color)
+            ax2.set_ylim(vel_lim)
         ax1.plot(
             time_idx,
             pp['x'],
@@ -124,6 +130,8 @@ def show_gaze(data=None, pp=None, events=None,
             time_idx,
             pp['y'],
             color='black', lw=1)
+        if coord_lim is not None:
+            ax1.set_ylim(coord_lim)
         #pl.plot(
         #    time_idx,
         #    pp['med_vel'],
@@ -134,10 +142,10 @@ def show_gaze(data=None, pp=None, events=None,
                 ev['start_time'],
                 ev['end_time'],
                 color=colors[ev['label']],
-                alpha=0.3)
+                alpha=0.3 if ev['label'] in ('FIXA', 'PURS') else 1.0)
             #pl.text(ev['start_time'], 0, '{:.1f}'.format(ev['id']), color='red')
     if data is not None or pp is not None:
-        ax1.set_ylabel('Coordinates (pixel)')
+        ax1.set_ylabel('Gaze coord. (px)')
         ax1.set_xlabel('Time (seconds)')
         # make figure tight
         duration = \
