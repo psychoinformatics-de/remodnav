@@ -19,6 +19,53 @@ from .clf import (
     events2bids_events_tsv,
 )
 
+help = {
+    'dilate_nan': """duration for which to replace data by missing data
+    markers on either side of a signal-loss window (in seconds)""",
+    'lowpass_cutoff_freq': """cut-off frequency of a Butterworth low-pass
+    filter applied to determine drift velocities in a pursuit event
+    candidate (in Hz)""",
+    'max_initial_saccade_freq': """maximum saccade frequency for initial
+    detection of major saccades, initial data chunking is stopped if this
+    frequency is reached (should be smaller than an expected (natural)
+    saccade frequency in a particular context) (in Hz)""",
+    'max_pso_duration': """maximum duration of a post-saccadic oscillation
+    (glissade) candidate (in seconds)""",
+    'max_vel': """maximum velocity threshold, will replace value with
+    maximum, and issue warning if exceeded to inform about potentially
+    inappropriate filter settings""",
+    'median_filter_length': """smoothing median-filter size (for initial
+    data chunking only) (in seconds)""",
+    'min_blink_duration': """missing data windows shorter than this
+    duration will not be considered for --dilate-nan (in seconds)""",
+    'min_fixation_duration': """minimum duration of a fixation event
+    candidate (in seconds)""",
+    'min_intersaccade_duration': """no saccade detection is performed in
+    windows shorter than twice this value, plus minimum saccade and PSO
+    duration (in seconds)""",
+    'min_pursuit_duration': """minimum duration of a pursuit event
+    candidate (in seconds)""",
+    'min_saccade_duration': """minimum duration of a saccade event
+    candidate (in seconds)""",
+    'noise_factor': """adaptive saccade onset threshold velocity is the
+    median absolute deviation of velocities in the window of interest,
+    times this factor (peak velocity threshold is twice the onset velocity);
+    increase for noisy data to reduce false positives""",
+    'pursuit_velthresh': """fixed drift velocity threshold to distinguish
+    periods of pursuit from periods of fixation; higher than natural ocular
+    drift velocities during fixations""",
+    'saccade_context_window_length': """size of a window centered on any
+    velocity peak for adaptive determination of saccade velocity thresholds
+    (for initial data chunking only) (in seconds)""",
+    'savgol_length': """size of Savitzky-Golay filter for noise reduction
+    (in seconds)""",
+    'savgol_polyord': """polynomial order of Savitzky-Golay filter for noise
+    reduction""",
+    'velthresh_startvelocity': """start value for adaptive velocity threshold
+    algorithm, should be larger than any conceivable minimum saccade velocity
+    (in deg/s)""",
+}
+
 
 def main(args=sys.argv):
     import argparse
@@ -32,16 +79,15 @@ def main(args=sys.argv):
 
     parser = argparse.ArgumentParser(
         prog='remodnav',
-        description='{}\nPreprocessing\n=============\n{}'.format(
+        description='{}'.format(
             EyegazeClassifier.__doc__,
-            EyegazeClassifier.preproc.__doc__,
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         'infile', metavar='<datafile>',
         help="""Data file with eye gaze recordings to process. The first two
-        column in this file must contain x and y coordinates, while each line
+        columns in this file must contain X and Y coordinates, while each line
         is a timepoint (no header). The file is read with NumPy's recfromcsv
         and may be compressed.""")
     parser.add_argument(
@@ -71,7 +117,7 @@ def main(args=sys.argv):
             metavar='<float>' if argname != 'savgol-polyord' else '<int>',
             type=float if argname != 'savgol-polyord' else int,
             default=default,
-            help='default: {}'.format(default))
+            help=help[argname] + ' [default: {}]'.format(default))
 
     args = parser.parse_args(args[1:])
 
