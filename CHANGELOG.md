@@ -4,7 +4,7 @@ This is a high level and scarce summary of the changes between releases.
 Consult the full history of the [git
 repository](http://github.com/psychoinformatics-de/remodnav) for more details.
 
-## X.X (XXX XX, XXXX)
+## 0.2 (Apr 23, 2019)
 
 - Ability to distinguish any number of fixation and pursuit events within
   a single inter-saccade-period
