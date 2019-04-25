@@ -4,6 +4,10 @@ This is a high level and scarce summary of the changes between releases.
 Consult the full history of the [git
 repository](http://github.com/psychoinformatics-de/remodnav) for more details.
 
+## 1.0 (Apr 25, 2019)
+
+- Improve program help
+
 ## 0.2 (Apr 23, 2019)
 
 - Ability to distinguish any number of fixation and pursuit events within

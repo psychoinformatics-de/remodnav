@@ -19,21 +19,8 @@ def get_version():
 # extension version
 version = get_version()
 
-# PyPI doesn't render markdown yet. Workaround for a sane appearance
-# https://github.com/pypa/pypi-legacy/issues/148#issuecomment-227757822
-README = opj(dirname(__file__), 'README.md')
-try:
-    import pypandoc
-    long_description = pypandoc.convert(README, 'rst')
-except (ImportError, OSError) as exc:
-    # attempting to install pandoc via brew on OSX currently hangs and
-    # pypandoc imports but throws OSError demanding pandoc
-    print(
-        "WARNING: pypandoc failed to import or thrown an error while converting"
-        " README.md to RST: %r   .md version will be used as is" % exc
-    )
-    long_description = open(README).read()
-
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name="remodnav",
@@ -42,6 +29,8 @@ setup(
     version=version,
     description="robust eye movement detection for natural viewing",
     long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/psychoinformatics-de/remodnav",
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('remodnav')],
     install_requires=[
         'numpy',
@@ -49,11 +38,6 @@ setup(
         'statsmodels',
         'matplotlib',
     ],
-    extras_require={
-        'devel-docs': [
-            # used for converting README.md -> .rst for long_description
-            'pypandoc',
-        ]},
     entry_points = {
         'console_scripts': ['remodnav=remodnav:main'],
     },
