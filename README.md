@@ -101,7 +101,7 @@ the desired value(s) into the command line call:
 
 ## Citation
 
-Dar, A. H., Wagner, A. S. & Hanke, M. (2019). [REMoDNaV: Robust Eye Movement Detection for Natural Viewing](https://doi.org/10.1101/619254). *bioRxiv*. DOI: https://doi.org/10.1101/619254
+Dar, A. H., Wagner, A. S. & Hanke, M. (2019). [REMoDNaV: Robust Eye Movement Detection for Natural Viewing](https://doi.org/10.1101/619254). *bioRxiv*. DOI: ``10.1101/619254``
 *(first two authors contributed equally)*
 
 ## License
@@ -117,4 +117,6 @@ welcome.
 
 ## References
 
-Nyström, M., & Holmqvist, K. (2010). An adaptive algorithm for fixation, saccade, and glissade detection in eyetracking data. Behavior research methods, 42(1), 188-204. doi: https://doi.org/10.3758/BRM.42.1.188
+Nyström, M., & Holmqvist, K. (2010). [An adaptive algorithm for fixation, saccade, and
+glissade detection in eyetracking data](https://doi.org/10.3758/BRM.42.1.188).
+Behavior research methods, 42(1), 188-204. DOI: ``10.3758/BRM.42.1.188``
