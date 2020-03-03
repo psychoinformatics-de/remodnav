@@ -77,7 +77,7 @@ def samp2file(data, fname):
 
 def show_gaze(data=None, pp=None, events=None,
               sampling_rate=1000.0, show_vels=True,
-              coord_lim=None, vel_lim=(0, 1000)):
+              coord_lim=None, vel_lim=(1, 1000)):
     # using the seaborn-recommended qualitative colormap for colorblind
     colors = {
         'FIXA': '#029e73',
@@ -121,6 +121,14 @@ def show_gaze(data=None, pp=None, events=None,
                 alpha=0.8)
             ax2.set_ylabel('Velocity (deg/s)', color=vel_color)
             ax2.tick_params(axis='y', labelcolor=vel_color)
+            # Note: If the lower y-axis limit is set to 0, 0 becomes -inf in log
+            # space, resulting in pyplot ignoring the limits.
+            if vel_lim[0] == 0:
+                lgr.warning("Found a lower y axis limit of 0 to be converted to "
+                            "logspace. Changing lower y axis limit from 0 to 1.")
+                lvel_lim = list(vel_lim)
+                lvel_lim[0] = 1
+                vel_lim = tuple(lvel_lim)
             ax2.set_ylim(vel_lim)
         ax1.plot(
             time_idx,
