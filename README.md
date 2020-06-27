@@ -49,6 +49,7 @@ command line call:
 - ``infile``: Data file with eye gaze recordings to process. The first two columns
   in this file must contain x and y coordinates, while each line is a timepoint
   (no header). The file is read with NumPy's ``recfromcsv`` and may be compressed.
+  The columns are expected to be seperated by tabulators (``\t``).
 - ``outfile``: Output file name. This file will contain information on all detected
   eye movement events in BIDS events.tsv format.
 - ``px2deg``: Factor to convert pixel coordinates to visual degrees, i.e. the visual
