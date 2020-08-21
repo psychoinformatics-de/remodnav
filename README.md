@@ -71,7 +71,7 @@ Exemplary command line call:
 
 REMoDNaV comes with many configurable parameters. These parameters have sensible default values,
 but they can be changed by the user within the command line call.
-Further descriptions of these parameters can be found in the corresponding [publication](yettolink).
+Further descriptions of these parameters can be found in the corresponding [publication](https://link.springer.com/article/10.3758/s13428-020-01428-x).
 
 | Parameter | Unit   | Description                                                                              |
 | -------------------------- | ------ | ---------------------------------------------------------------------------------------- |
