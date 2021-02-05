@@ -806,9 +806,23 @@ class EyegazeClassifier(object):
         # convert params in seconds to #samples
         dilate_nan = int(dilate_nan * self.sr)
         min_blink_duration = int(min_blink_duration * self.sr)
+        # sanity check window length - it needs to be odd, and greater than the
+        # polynomial order of the Savitzgy-Golay filter
+        if int(savgol_length * self.sr) % 2 != 1 or \
+            int(savgol_length * self.sr) < savgol_polyord:
+            raise ValueError("\n"\
+                "Inappropriate window size for Savitzgy-Golay "\
+                "filter. Please adjust --savgol-length such that the "\
+                "formula 'savgol-length x sampling rate' results in a "\
+                "number that can be rounded down to an odd integer that "\
+                "is higher than {}. Currently, --savgol-length is {} and "\
+                "the sampling rate is {} "\
+                "which results in {}.".format(savgol_polyord,
+                                              savgol_length,
+                                              self.sr,
+                                              int(savgol_length * self.sr)))
         savgol_length = int(savgol_length * self.sr)
         median_filter_length = int(median_filter_length * self.sr)
-
         # in-place spike filter
         data = filter_spikes(data)
 
