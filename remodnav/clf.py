@@ -808,8 +808,9 @@ class EyegazeClassifier(object):
         min_blink_duration = int(min_blink_duration * self.sr)
         # sanity check window length - it needs to be odd, and greater than the
         # polynomial order of the Savitzgy-Golay filter
-        if int(savgol_length * self.sr) % 2 != 1 or \
-            int(savgol_length * self.sr) < savgol_polyord:
+        if (int(savgol_length * self.sr) % 2 != 1 or
+            int(savgol_length * self.sr) < savgol_polyord) and \
+                savgol_length != 0.0:
             raise ValueError("\n"\
                 "Inappropriate window size for Savitzgy-Golay "\
                 "filter. Please adjust --savgol-length such that the "\
