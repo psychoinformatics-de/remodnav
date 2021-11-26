@@ -241,6 +241,20 @@ class EyegazeClassifier(object):
             self.pursuit_velthresh = pursuit_velthresh
             self.noise_factor = noise_factor
 
+            for name, arg in [('min-intersaccade-duration',
+                               min_intersaccade_duration),
+                              ('min-saccade-duration', min_saccade_duration),
+                              ('saccade-context-window-length',
+                               saccade_context_window_length),
+                              ('max-pso-duration', max_pso_duration),
+                              ('min-fixation-duration', min_fixation_duration),
+                              ('min-pursuit-duration', min_pursuit_duration)]:
+                if arg * sr < 1:
+                    lgr.warning(
+                        " At the provided sampling rate of %s, the timeframe"
+                        " for the parameter '%s' would be lower than a single"
+                        " sample (%.1f samples). Consider increasing the"
+                        " parameter value to prevent errors.", sr, name, arg*sr)
             # convert to #samples
             self.min_intersac_dur = int(
                 min_intersaccade_duration * sr)
