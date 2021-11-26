@@ -19,8 +19,19 @@ def get_version():
 # extension version
 version = get_version()
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+
+try:
+    import pypandoc
+    README = opj(dirname(__file__), 'README.md')
+    long_description = pypandoc.convert_file(README, 'rst')
+except (ImportError, OSError) as exc:
+    print(
+        "WARNING: pypandoc failed to import or threw an error while "
+        "converting README.md to RST: "
+        "%r  .md version will be used as is" % exc
+    )
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
 
 setup(
     name="remodnav",
@@ -38,6 +49,11 @@ setup(
         'statsmodels',
         'matplotlib',
     ],
+    extras_require={
+        'devel-docs': [
+            # for converting README.md -> .rst for long description
+            'pypandoc',
+        ]},
     entry_points = {
         'console_scripts': ['remodnav=remodnav:main'],
     },
