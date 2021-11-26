@@ -4,6 +4,20 @@ This is a high level and scarce summary of the changes between releases.
 Consult the full history of the [git
 repository](http://github.com/psychoinformatics-de/remodnav) for more details.
 
+## 1.1 (Nov 26, 2021)
+
+Maintenance release:
+
+- Modernized continuous integration setup: Switched from Travis to Appveyor and
+  GitHub actions, use of a more recent git annex version
+- Improved input validation: Especially with lower sampling rates, default or
+  user-provided parametrizations could lead to inappropriate or impossible
+  parametrizations for further tooling in remodnav internals. Input validations
+  for the savitzgy-golay filter and parameters that interact with the sampling
+  rate have been added to issue warnings to aid users.
+- Improved software documentation in the README, contributed by @jliebers - thx!
+  It is now stated explicitly that the input data needs to be tab separated.
+
 ## 1.0 (Apr 25, 2019)
 
 - Improve program help
