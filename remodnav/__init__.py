@@ -6,7 +6,7 @@
 #   copyright and license terms.
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-__version__ = '1.1'
+__version__ = '1.1.1'
 
 import logging
 lgr = logging.getLogger('remodnav')
