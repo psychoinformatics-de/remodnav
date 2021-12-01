@@ -273,6 +273,8 @@ class EyegazeClassifier(object):
 
     def _get_signal_props(self, data):
         data = data[~np.isnan(data['vel'])]
+        if not len(data):
+            return np.nan, np.nan, np.nan, np.nan
         pv = data['vel'].max()
         amp = (((data[0]['x'] - data[-1]['x']) ** 2 + \
                 (data[0]['y'] - data[-1]['y']) ** 2) ** 0.5) * self.px2deg
@@ -894,13 +896,16 @@ class EyegazeClassifier(object):
                 vel = filtered_velocities[-1]
             filtered_velocities.append(vel)
         velocities = np.array(filtered_velocities)
-
+        if not median_filter_length:
+            # no median filtering, but we need the field in our dict later,
+            # so we just reuse the original velocities
+            med_velocities = velocities
         # acceleration is change of velocities over the last time unit
         acceleration = np.zeros(velocities.shape, velocities.dtype)
         acceleration[1:] = (velocities[1:] - velocities[:-1]) * self.sr
 
-        arrs = [med_velocities] if median_filter_length else []
-        names = ['med_vel'] if median_filter_length else []
+        arrs = [med_velocities]
+        names = ['med_vel']
         arrs.extend([
             velocities,
             acceleration,

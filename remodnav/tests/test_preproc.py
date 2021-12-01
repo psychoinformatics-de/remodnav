@@ -85,7 +85,6 @@ def test_preproc():
     # 2 deg in 0.1s -> 20deg/s
     assert p['vel'][-1] == 20
     assert p['accel'][-1] == 200
-    assert 'med_vel' not in p.dtype.names
 
     data['x'][1] = 200
     p = clf.preproc(data.copy(), savgol_length=0, dilate_nan=0)
