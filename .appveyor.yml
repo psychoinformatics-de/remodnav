@@ -64,7 +64,7 @@ environment:
     #  PY: 39-x64
     # MacOS core tests
     - ID: MacP38core
-      APPVEYOR_BUILD_WORKER_IMAGE: macOS
+      APPVEYOR_BUILD_WORKER_IMAGE: macos-monterey
       PY: 3.8
       # does not give a functional installation
       # INSTALL_GITANNEX: git-annex -m snapshot
