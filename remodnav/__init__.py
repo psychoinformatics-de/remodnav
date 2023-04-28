@@ -74,7 +74,7 @@ def main(args=sys.argv):
     kwargs = {}
     for func in (EyegazeClassifier.__init__, EyegazeClassifier.preproc):
         # pull kwargs and their defaults out of the function definitions
-        argspec = inspect.getargspec(func)
+        argspec = inspect.getfullargspec(func)
         kwargs.update(zip(argspec.args[::-1], argspec.defaults[::-1]))
 
     parser = argparse.ArgumentParser(
