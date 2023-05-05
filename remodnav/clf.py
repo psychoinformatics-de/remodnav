@@ -196,7 +196,7 @@ def events2bids_events_tsv(events, fname, tsoffset=0.0):
                 ev['end_time'] - ev['start_time'],
                 '\t'.join([
                     ('{}' if k == 'label'
-                     else '{:.1f}' if k.endswith('_x') or k.endswith('_y')
+                     else '{:.5f}' if k.endswith('_x') or k.endswith('_y')
                      else '{:.3f}').format(ev[k])
                     for k in common_headers
                 ])))
