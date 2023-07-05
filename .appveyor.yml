@@ -58,10 +58,10 @@ environment:
       # system git-annex is way too old, use better one
       INSTALL_GITANNEX: git-annex -m deb-url --url http://snapshot.debian.org/archive/debian/20210906T204127Z/pool/main/g/git-annex/git-annex_8.20210903-1_amd64.deb
     # Windows core tests
-    #- ID: WinP39core
-    #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    #  # Python version specification is non-standard on windows
-    #  PY: 39-x64
+    - ID: WinP39core
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      # Python version specification is non-standard on windows
+      PY: 39-x64
     # MacOS core tests
     - ID: MacP38core
       APPVEYOR_BUILD_WORKER_IMAGE: macos-monterey
