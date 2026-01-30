@@ -13,7 +13,7 @@ and performs robustly on data with temporally varying noise level.
 ## Support
 
 All bugs, concerns and enhancement requests for this software can be submitted here:
-https://github.com/psychoinformatics-de/remodnav
+https://codeberg.org/psyinf/remodnav
 
 If you have a problem or would like to ask a question about how to use REMoDNaV,
 please [submit a question to
